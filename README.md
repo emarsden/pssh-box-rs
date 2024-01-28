@@ -72,4 +72,4 @@ file. Install it on Linux using
 
 ## License
 
-This project is licensed under the MIT license. For more information, see the `LICENSE-MIT` file.
+This project is licensed under the MIT license. For more information, see the `LICENSE` file.

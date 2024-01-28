@@ -3,7 +3,11 @@ name = "pssh-box"
 description = "Parsing and serialization support for PSSH boxes used in DRM systems"
 version = "0.1.0"
 authors = ["Eric Marsden <eric.marsden@risk-engineering.org>"]
+readme = "README.md"
+repository = "https://github.com/emarsden/pssh-box-rs/"
 license = "MIT"
+keywords = ["PSSH", "DRM", "DASH", "streaming", "ContentProtection"]
+categories = ["multimedia::video", "parser-implementations"]
 edition = "2021"
 
 
