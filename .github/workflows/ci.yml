@@ -1,0 +1,24 @@
+on: [push]
+
+name: build
+
+jobs:
+  check:
+    name: pssh-box-rs check/nightly
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: taiki-e/install-action@cargo-hack
+      - run: cargo check
+      - run: cargo hack check --feature-powerset --no-dev-deps
+
+  test:
+    name: pssh-box-rs test/stable
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --jobs 1 --all-features
