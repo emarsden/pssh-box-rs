@@ -1,0 +1,38 @@
+[package]
+name = "pssh-box"
+description = "Parsing and serialization support for PSSH boxes used in DRM systems"
+version = "0.1.0"
+authors = ["Eric Marsden <eric.marsden@risk-engineering.org>"]
+license = "MIT"
+edition = "2021"
+
+
+[dependencies]
+serde = { version = "1.0.196", features = ["derive"] }
+serde_path_to_error = "0.1.15"
+serde_with = { version = "3.5.1", features = ["base64"] }
+serde-xml-rs = "0.6.0"
+serde_json = "1.0.112"
+zerocopy = { version = "0.7.32", features = ["derive"] }
+quick-xml = { version = "0.31.0", features = ["serialize", "overlapped-lists", "serde-types"] }
+prost = { version = "0.12.3", features = ["prost-derive"] }
+prost-types = "0.12.3"
+bytes = "1.5.0"
+byteorder = "1.5.0"
+hex = "0.4.3"
+hex-literal = "0.4.1"
+hxdmp = "0.2.1"
+bstr = "1.9.0"
+num_enum = "0.7.2"
+base64 = "0.21.7"
+tracing = { version = "0.1.40", features = ["attributes"] }
+anyhow = "1.0.79"
+
+[dev-dependencies]
+clap = { version = "4.3.24", features = ["cargo", "unicode", "wrap_help"] }
+reqwest = { version = "0.11.23", features = ["blocking"] }
+test-log = "0.2.14"
+pretty_assertions = "1.4.0"
+
+[build-dependencies]
+prost-build = { version = "0.12" }
