@@ -55,7 +55,7 @@ if let PsshData::Widevine(ref pd) = pssh.pssh_data {
     assert!(pd.provider.clone().is_some_and(|p| p.eq("sfr")));
     assert_eq!(pd.key_id[0], hex::decode("aa8be47a53db29b0e0533b28450a1cbb").unwrap());
     assert_eq!(pd.content_id, Some(hex::decode("61613862653437612d353364622d323962302d653035332d336232383435306131636262").unwrap()));
-    }
+}
 ```
 
 

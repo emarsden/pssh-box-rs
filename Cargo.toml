@@ -8,6 +8,7 @@ repository = "https://github.com/emarsden/pssh-box-rs/"
 license = "MIT"
 keywords = ["PSSH", "DRM", "DASH", "streaming", "ContentProtection"]
 categories = ["multimedia::video", "parser-implementations"]
+publish = true
 edition = "2021"
 
 
