@@ -2,7 +2,16 @@
 
 This crate defines Rust data structures allowing you to store, parse and serialize Protection System
 Specific Header (**PSSH**) boxes, which provide data for the initialization of a Digital Rights
-Management (DRM) system. PSSH boxes are used:
+Management (DRM) system.
+
+[![Crates.io](https://img.shields.io/crates/v/pssh-box)](https://crates.io/crates/pssh-box)
+[![Released API docs](https://docs.rs/pssh-box/badge.svg)](https://docs.rs/pssh-box/)
+[![CI](https://github.com/emarsden/pssh-box-rs/workflows/build/badge.svg)](https://github.com/emarsden/pssh-box-rs/workflows/build/badge.svg)
+[![Dependency status](https://deps.rs/repo/github/emarsden/pssh-box-rs/status.svg)](https://deps.rs/repo/github/emarsden/pssh-box-rs)
+[![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+
+PSSH boxes are used:
 
 - in an MP4 box of type `pssh` in an MP4 fragment (CMAF/MP4/ISOBMFF containers)
 
