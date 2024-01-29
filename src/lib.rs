@@ -267,7 +267,6 @@ impl PsshBox {
         let mut empty = WidevinePsshData::default();
         empty.provider = None;
         empty.policy = Some(String::from(""));
-        dbg!(empty.clone());
         PsshBox {
             version: 1,
             flags: 0,

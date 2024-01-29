@@ -44,7 +44,6 @@ impl ToBytes for NagraPsshData {
 pub fn parse_pssh_data(buf: &[u8]) -> Result<NagraPsshData> {
     let b64 = String::from_utf8(buf.to_vec())
         .context("decoding UTF-8")?;
-    dbg!(b64.clone());
     let json = BASE64_URL_SAFE_FORGIVING.decode(b64)
         .context("decoding base64")?;
     let parsed: Value = serde_json::from_slice(&json)
