@@ -407,7 +407,7 @@ fn test_parsing_wiseplay() {
 }
 
 #[test]
-fn test_parsing_commonenc() {
+fn test_parsing_commonenc_v1() {
     let boxes = from_base64("AAAANHBzc2gBAAAAEHfv7MCyTQKs4zweUuL7SwAAAAEJIv31avpBoIhhXRvITKxgAAAAAA==")
         .unwrap();
     assert_eq!(boxes.len(), 1);
@@ -445,9 +445,15 @@ fn test_parsing_commonenc() {
     pprint(&pssh);
     assert_eq!(pssh.system_id, COMMON_SYSTEM_ID);
     assert_eq!(pssh.key_ids[0], DRMKeyId::try_from("38d581ae63c54cdcb5d36a155dcbde1c").unwrap());
+
+    let boxes = from_base64("AAABJHBzc2gBAAAAEHfv7MCyTQKs4zweUuL7SwAAABAFo6CpeLw88YLCEc18zO70BaOgqXi8PPGCwhHNfMzu9QWjoKl4vDzxgsIRzXzM7vYFo6CpeLw88YLCEc18zO73AAAAAAAAAAAAAAAAAAAAAHsidiI6IjIiLCJmaWQiOiJoXzExMDBoemdkMDAxNDZhIiwicGwiOiJleUp3YVdRaU9pSm9YekV4TURCb2VtZGtNREF4TkRaaElpd2laR1ZzYVhabGNubGZkSGx3WlNJNkluTjBJbjAiLCJzdmlkIjoiZGlnaXRhbCIsImNzIjoiZGQxMTQzMjcyOTU4ODZmNjYxYmYxZDBiNWExZjE3YjQifQAAAAAAAAAAAAAAAAAAAAAAAA==")
+        .unwrap();
+    assert_eq!(boxes.len(), 1);
+    let pssh = &boxes[0];
+    assert_eq!(pssh.version, 1);
+    assert_eq!(pssh.system_id, COMMON_SYSTEM_ID);
+    assert_eq!(pssh.key_ids.len(), 16);
 }
-
-
 
 #[test]
 fn test_parsing_multisystem() {
