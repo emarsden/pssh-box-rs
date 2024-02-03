@@ -132,7 +132,7 @@ impl ToBytes for DRMSystemId {
     }
 }
 
-impl fmt::Debug for DRMSystemId {
+impl fmt::Display for DRMSystemId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // See list at https://dashif.org/identifiers/content_protection/
         let family = if self.id == hex!("1077efecc0b24d02ace33c1e52e2fb4b") {
@@ -180,6 +180,12 @@ impl fmt::Debug for DRMSystemId {
         write!(f, "{}/DRMSystemId<{}-{}-{}-{}>",
                family,
                &hex[0..8], &hex[8..12], &hex[12..16], &hex[16..32])
+    }
+}
+
+impl fmt::Debug for DRMSystemId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "DRMSystemId<{}>", hex::encode(self.id))
     }
 }
 
@@ -241,7 +247,7 @@ impl ToBytes for DRMKeyId {
     }
 }
 
-impl fmt::Debug for DRMKeyId {
+impl fmt::Display for DRMKeyId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // example: 72c3ed2c-7a5f-4aad-902f-cbef1efe89a9
         let hex = hex::encode(self.id);
@@ -250,6 +256,11 @@ impl fmt::Debug for DRMKeyId {
     }
 }
 
+impl fmt::Debug for DRMKeyId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "DRMKeyId<{}>", hex::encode(self.id))
+    }
+}
 
 
 /// A PSSH box, also called a ProtectionSystemSpecificHeaderBox in ISO 23001-7:2012.
@@ -300,11 +311,60 @@ impl PsshBox {
     }
 }
 
-impl std::fmt::Display for PsshBox {
+/// This to_string() method provides the most compact representation possible on a single line; see
+/// the pprint() function for a more verbose layout.
+impl fmt::Display for PsshBox {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", quick_xml::se::to_string(self).map_err(|_| std::fmt::Error)?)
+        let mut keys = Vec::new();
+        if self.version == 1 {
+            for key in &self.key_ids {
+                keys.push(hex::encode(key.id));
+            }
+        }
+        let key_str = match keys.len() {
+            0 => String::from(""),
+            1 => format!("key_id: {}, ", keys[0]),
+            _ => format!("key_ids: {}, ", keys.join(", ")),
+        };
+        match &self.pssh_data {
+            PsshData::Widevine(wv) => {
+                let mut items = Vec::new();
+                let json = wv.to_json();
+                if let Some(alg) = json.get("algorithm") {
+                    alg.as_str().map(|a| items.push(String::from(a)));
+                }
+                // We are merging keys potentially present in the v1 PSSH box data with those
+                // present in the Widevine PSSH data.
+                if let Some(kav) = json.get("key_id") {
+                    if let Some(ka) = kav.as_array() {
+                        for kv in ka {
+                            kv.as_str().map(|k| keys.push(k.to_string()));
+                        }
+                    }
+                }
+                if keys.len() == 1 {
+                    items.push(format!("key_id: {}", keys[0]));
+                }
+                if keys.len() > 1 {
+                    items.push(format!("key_ids: {}", keys.join(", ")));
+                }
+                for (k, v) in json.as_object().unwrap().iter() {
+                    if k.ne("algorithm") && k.ne("key_id") {
+                        items.push(format!("{k}: {v}"));
+                    }
+                }
+                write!(f, "WidevinePSSH<{}>", items.join(", "))
+            },
+            PsshData::PlayReady(pr) => write!(f, "PlayReadyPSSH<{key_str}{pr:?}>"),
+            PsshData::Irdeto(pd) => write!(f, "IrdetoPSSH<{key_str}{}>", pd.xml),
+            PsshData::Marlin(pd) => write!(f, "  MarlinPSSH<{key_str}pssh data len {} octets>", pd.len()),
+            PsshData::Nagra(pd) => write!(f, "NagraPSSH<{key_str}{pd:?}>"),
+            PsshData::WisePlay(pd) => write!(f, "WisePlayPSSH<{key_str}{}>", pd.json),
+            PsshData::CommonEnc(pd) => write!(f, "CommonPSSH<{key_str}pssh data len {} octets>", pd.len()),
+        }
     }
 }
+
 
 impl ToBytes for PsshBox {
     #[allow(unused_must_use)]
@@ -403,6 +463,16 @@ impl std::ops::Index<usize> for PsshBoxVec {
     }
 }
 
+impl fmt::Display for PsshBoxVec {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut items = Vec::new();
+        for pssh in self.iter() {
+            items.push(pssh.to_string());
+        }
+        // Print one PsshBox per line, without a trailing newline.
+        write!(f, "{}", items.join("\n"))
+    }
+}
 
 // Initialization Data is always one or more concatenated 'pssh' boxes. The CDM must be able to
 // examine multiple 'pssh' boxes in the Initialization Data to find a 'pssh' box that it supports.
@@ -568,6 +638,26 @@ pub fn from_buffer(init_data: &[u8]) -> Result<PsshBoxVec> {
     Ok(boxes)
 }
 
+/// Locate the positions of a PsshBox in a buffer, if present. Returns an iterator over start
+/// positions for PSSH boxes in the buffer.
+pub fn find_iter(buffer: &[u8]) -> impl Iterator<Item = usize> + '_ {
+    use bstr::ByteSlice;
+
+    buffer.find_iter(b"pssh")
+        .filter(|offset| {
+            if offset+24 > buffer.len() {
+                return false;
+            }
+            let start = offset - 4;
+            let mut rdr = Cursor::new(&buffer[start..]);
+            let size: u32 = rdr.read_u32::<BigEndian>().unwrap();
+            let end = start + size as usize;
+            from_bytes(&buffer[start..end]).is_ok()
+        })
+        .map(|offset| offset - 4)
+}
+
+/// Multiline pretty printing of a PsshBox (verbose alternative to `to_string()` method).
 pub fn pprint(pssh: &PsshBox) {
     println!("PSSH Box v{}", pssh.version);
     println!("  SystemID: {:?}", pssh.system_id);
@@ -606,24 +696,3 @@ pub fn pprint(pssh: &PsshBox) {
         },
     }
 }
-
-
-/// Locate the positions of a PsshBox in a buffer, if present. Returns an iterator over start
-/// positions for PSSH boxes in the buffer.
-pub fn find_iter(buffer: &[u8]) -> impl Iterator<Item = usize> + '_ {
-    use bstr::ByteSlice;
-
-    buffer.find_iter(b"pssh")
-        .filter(|offset| {
-            if offset+24 > buffer.len() {
-                return false;
-            }
-            let start = offset - 4;
-            let mut rdr = Cursor::new(&buffer[start..]);
-            let size: u32 = rdr.read_u32::<BigEndian>().unwrap();
-            let end = start + size as usize;
-            from_bytes(&buffer[start..end]).is_ok()
-        })
-        .map(|offset| offset - 4)
-}
-
