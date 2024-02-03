@@ -37,7 +37,8 @@ impl Write for Utf16Writer {
 
 pub fn to_utf16(xml: &str) -> Vec<u16> {
     let mut writer = Utf16Writer(Vec::new());
-    write!(writer, "{xml}").unwrap();
+    write!(writer, "{xml}")
+        .expect("writing XML as UTF-16");
     writer.0
 }
 
@@ -126,7 +127,8 @@ pub struct WRMHeader {
 
 impl ToBytes for WRMHeader {
     fn to_bytes(&self) -> Vec<u8> {
-        let xml = quick_xml::se::to_string(self).unwrap();
+        let xml = quick_xml::se::to_string(self)
+            .expect("parsing WRMHeader XML");
         let mut out = Vec::<u8>::new();
         for u in to_utf16(&xml) {
             let _ = out.write_u16::<LittleEndian>(u);
@@ -208,7 +210,9 @@ fn parse_playready_record(rdr: &mut Cursor<&[u8]>) -> Result<PlayReadyRecord> {
                 return Err(anyhow!("invalid CUSTOMATTRIBUTES element"));
             }
             if let Some(subseq) = xml.get(start..end) {
-                let inner_start = subseq.find('>').unwrap() + 1;
+                let ca_tag_end = subseq.find('>')
+                    .context("finding end of CUSTOMATTRIBUTES element")?;
+                let inner_start = ca_tag_end + 1;
                 println!("start = {}, inner_start = {}", start, inner_start);
                 if let Some(inner) = subseq.get(inner_start..) {
                     custom_attributes = Some(String::from(inner));
@@ -246,7 +250,8 @@ impl fmt::Debug for PlayReadyPsshData {
         let mut items = Vec::new();
         for r in &self.record {
             if r.record_type == PlayReadyRecordType::RightsManagement {
-                let xml = quick_xml::se::to_string(&r.record_value).unwrap();
+                let xml = quick_xml::se::to_string(&r.record_value)
+                    .map_err(|_| fmt::Error)?;
                 items.push(format!("RightsManagementRecord: {xml}"));
             } else {
                 items.push(format!("{r:?}"));
