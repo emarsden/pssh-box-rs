@@ -23,7 +23,7 @@ use prost::Message;
 
 fn main() -> Result<()> {
     let clap = clap::Command::new("pssh-box")
-        .about("Parse a PSSH box.")
+        .about("Parse DRM initialization data (a PSSH box).")
         .version(clap::crate_version!())
         .arg(Arg::new("hex")
              .long("hex")
