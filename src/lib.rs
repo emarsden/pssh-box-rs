@@ -275,9 +275,11 @@ pub struct PsshBox {
 
 impl PsshBox {
     pub fn new_widevine() -> PsshBox {
-        let mut empty = WidevinePsshData::default();
-        empty.provider = None;
-        empty.policy = Some(String::from(""));
+        let empty = WidevinePsshData {
+            provider: None,
+            policy: Some(String::from("")),
+            ..Default::default()
+        };
         PsshBox {
             version: 1,
             flags: 0,
@@ -331,14 +333,18 @@ impl fmt::Display for PsshBox {
                 let mut items = Vec::new();
                 let json = wv.to_json();
                 if let Some(alg) = json.get("algorithm") {
-                    alg.as_str().map(|a| items.push(String::from(a)));
+                    if let Some(a) = alg.as_str() {
+                        items.push(String::from(a));
+                    }
                 }
                 // We are merging keys potentially present in the v1 PSSH box data with those
                 // present in the Widevine PSSH data.
                 if let Some(kav) = json.get("key_id") {
                     if let Some(ka) = kav.as_array() {
                         for kv in ka {
-                            kv.as_str().map(|k| keys.push(k.to_string()));
+                            if let Some(k) = kv.as_str() {
+                                keys.push(String::from(k));
+                            }
                         }
                     }
                 }
