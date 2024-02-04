@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.1] - Unreleased
+## [0.1.1] - 2024-02-04
 
 - Add a compact `to_string()` method on `PsshBox` and `PsshBoxVec`.
 
