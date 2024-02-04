@@ -177,9 +177,9 @@ impl fmt::Display for DRMSystemId {
             "Unknown"
         };
         let hex = hex::encode(self.id);
-        write!(f, "{}/DRMSystemId<{}-{}-{}-{}>",
+        write!(f, "{}/DRMSystemId<{}-{}-{}-{}-{}>",
                family,
-               &hex[0..8], &hex[8..12], &hex[12..16], &hex[16..32])
+               &hex[0..8], &hex[8..12], &hex[12..16], &hex[16..20], &hex[20..32])
     }
 }
 
@@ -251,8 +251,8 @@ impl fmt::Display for DRMKeyId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // example: 72c3ed2c-7a5f-4aad-902f-cbef1efe89a9
         let hex = hex::encode(self.id);
-        write!(f, "DRMKeyId<{}-{}-{}-{}>",
-               &hex[0..8], &hex[8..12], &hex[12..16], &hex[16..32])
+        write!(f, "DRMKeyId<{}-{}-{}-{}-{}>",
+               &hex[0..8], &hex[8..12], &hex[12..16], &hex[16..20], &hex[20..32])
     }
 }
 

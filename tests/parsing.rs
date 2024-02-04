@@ -73,6 +73,7 @@ fn test_parsing_widevine_v0() {
         .unwrap();
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
+    pprint(&pssh);
     assert_eq!(pssh.system_id, WIDEVINE_SYSTEM_ID);
     assert_eq!(pssh.version, 0);
     if let PsshData::Widevine(ref pd) = pssh.pssh_data {
@@ -172,7 +173,8 @@ fn test_parsing_playready_v0() {
         .unwrap();
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
-    // println!("PLAYREADY> {pssh:?}");
+    println!("PLAYREADY> {pssh:?}");
+    pprint(&pssh);
     assert_eq!(pssh.system_id, PLAYREADY_SYSTEM_ID);
     if let PsshData::PlayReady(ref pd) = pssh.pssh_data {
         let wrmh = &pd.record[0].record_value;
@@ -278,6 +280,7 @@ fn test_parsing_nagra() {
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
     println!("NAGRA> {pssh:?}");
+    pprint(&pssh);
     assert_eq!(pssh.system_id, NAGRA_SYSTEM_ID);
     if let PsshData::Nagra(ref pd) = pssh.pssh_data {
         assert_eq!(pd.content_id, "Gone in the wind");
@@ -357,7 +360,7 @@ fn test_parsing_irdeto() {
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
     println!("Irdeto> {pssh:?}");
-    // pprint(&pssh);
+    pprint(&pssh);
     assert_eq!(pssh.system_id, IRDETO_SYSTEM_ID);
     if let PsshData::Irdeto(ref pd) = pssh.pssh_data {
         assert!(pd.xml.contains("<CCARMHEADER"));
@@ -374,6 +377,7 @@ fn test_parsing_wiseplay() {
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
     println!("WisePlay> {pssh:?}");
+    pprint(&pssh);
     assert_eq!(pssh.system_id, WISEPLAY_SYSTEM_ID);
     if let PsshData::WisePlay(ref pd) = pssh.pssh_data {
         assert!(pd.json["enschema"].eq("cenc"));
