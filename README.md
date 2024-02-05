@@ -68,15 +68,14 @@ if let PsshData::Widevine(ref pd) = pssh.pssh_data {
 ```
 
 
-
 ## Build
 
-You'll need to have the protoc compiler installed to compile this crate. This is because Widevine
-PSSH data is serialized using the protobuf format, and the format is specified in a .proto interfae
-file. Install it on Linux using
+The protoc compiler is used during the build process to translate the protobuf interface definition
+for Widevine PSSH data into Rust structs. This happens in the `build.rs` file.
 
-    sudo apt install protobuf-compiler
-    
+The default configuration of this crate depends on the `protobuf-src` crate to build a vendored
+version of the protoc compiler. Disable the default feature `vendored-protoc` to use a locally
+installed protoc compiler instead (from Debian package `protobuf-compiler`, for example).
 
 
 ## License

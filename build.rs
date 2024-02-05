@@ -3,6 +3,9 @@
 use std::io::Result;
 
 fn main() -> Result<()> {
+    #[cfg(feature = "vendored-protoc")]
+    std::env::set_var("PROTOC", protobuf_src::protoc());
+
     let mut config = prost_build::Config::new();
     // We want to provide our own Debug fmt implementation for this type
     config.skip_debug(["WidevinePsshData"])
