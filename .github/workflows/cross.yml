@@ -1,0 +1,27 @@
+on: [workflow_dispatch]
+
+# Check that the crate builds using the Rust toolchain cross-compilation support, at least on the
+# ubuntu-latest GitHub actions runners.
+name: cross-build
+
+jobs:
+  test-cross:
+    name: pssh-box-rs cross-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+  
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: aarch64-unknown-linux-gnu
+
+      - name: Install protoc compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install protobuf-compiler
+
+      - run: cargo build --target aarch64-unknown-linux-gnu
+
