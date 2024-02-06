@@ -1,4 +1,4 @@
-on: [push]
+on: [push, workflow_dispatch]
 
 name: build
 
@@ -20,8 +20,8 @@ jobs:
       - run: cargo check
       - run: cargo hack check --feature-powerset --no-dev-deps
 
-  test:
-    name: pssh-box-rs test/stable
+  test-linux:
+    name: linux
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -32,5 +32,31 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install protobuf-compiler
+
+      - run: cargo test --jobs 1 --all-features
+
+  test-windows:
+    name: windows
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: install protobuf compiler
+        run: choco install --yes --limit-output protoc
+
+      - run: cargo test --jobs 1 --all-features
+
+  test-macos:
+    name: macos
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: install protobuf compiler
+        run: brew install protobuf
 
       - run: cargo test --jobs 1 --all-features
