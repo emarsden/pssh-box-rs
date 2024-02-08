@@ -1,4 +1,7 @@
 /// Decode a PSSH provided in Base64 or hex format on the commandline
+//
+// The utility can be used to parse a single PSSH box or multiple concatenated PSSH boxes. The input
+// can be in hex or in base64.
 
 // Alternative test using shaka-packager (via docker container) to parse a PSSH box:
 //
@@ -10,9 +13,6 @@
 //
 
 
-// The utility can be used to parse a single PSSH box or multiple concatenated PSSH boxes. The input
-// can be in hex or in base64.
-
 use std::io::Cursor;
 use base64::prelude::{Engine as _, BASE64_STANDARD};
 use anyhow::{Result, Context};
@@ -22,7 +22,7 @@ use pssh_box::widevine::WidevinePsshData;
 use prost::Message;
 
 fn main() -> Result<()> {
-    let clap = clap::Command::new("pssh-box")
+    let clap = clap::Command::new("decode-pssh")
         .about("Parse DRM initialization data (a PSSH box).")
         .version(clap::crate_version!())
         .arg(Arg::new("hex")
