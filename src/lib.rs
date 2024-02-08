@@ -666,10 +666,10 @@ pub fn find_iter(buffer: &[u8]) -> impl Iterator<Item = usize> + '_ {
 /// Multiline pretty printing of a PsshBox (verbose alternative to `to_string()` method).
 pub fn pprint(pssh: &PsshBox) {
     println!("PSSH Box v{}", pssh.version);
-    println!("  SystemID: {:?}", pssh.system_id);
+    println!("  SystemID: {}", pssh.system_id);
     if pssh.version == 1 {
         for key in &pssh.key_ids {
-            println!("  Key ID: {:?}", key);
+            println!("  Key ID: {}", key);
         }
     }
     match &pssh.pssh_data {
