@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.3] - 2024-02-14
+
+- New example `fetch-pssh-data`, a commandline utility which fetches an initialization segment from
+  a DASH stream that uses ContentProtection (DRM) and displays the content of any DRM initialization
+  data (PSSH boxes) it may contain.
+
+- Release builds optimize for space.
+
+
 ## [0.1.2] - 2024-02-05
 
 - Add feature `vendored-protoc` to pull in the `protobuf-src` crate. With this feature, which
