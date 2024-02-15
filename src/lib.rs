@@ -67,6 +67,7 @@ pub enum PsshData {
     Nagra(NagraPsshData),
     Marlin(Vec<u8>),
     CommonEnc(Vec<u8>),
+    FairPlay(Vec<u8>),
 }
 
 impl ToBytes for PsshData {
@@ -79,6 +80,7 @@ impl ToBytes for PsshData {
             PsshData::Nagra(n) => n.to_bytes(),
             PsshData::Marlin(m) => m.to_vec(),
             PsshData::CommonEnc(c) => c.to_vec(),
+            PsshData::FairPlay(c) => c.to_vec(),
         }
     }
 }
@@ -151,6 +153,10 @@ impl fmt::Display for DRMSystemId {
             "Alticast"
         } else if self.id == hex!("94ce86fb07ff4f43adb893d2fa968ca2") {
             "Apple FairPlay"
+        } else if self.id == hex!("29701fe43cc74a348c5bae90c7439a47") {
+            // Unofficial FairPlay systemID used by Netflix for DASH streaming,
+            // see https://forums.developer.apple.com/thread/6185
+            "Apple FairPlay-Netflix variant"
         } else if self.id == hex!("3ea8778f77424bf9b18be834b2acbd47") {
             "ClearKey AES-128"
         } else if self.id == hex!("be58615b19c4468488b3c8c57e99e957") {
@@ -193,6 +199,7 @@ pub const COMMON_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("1077efecc0b24d
 pub const CENC_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("69f908af481646ea910ccd5dcccb0a3a") };
 pub const WIDEVINE_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("edef8ba979d64acea3c827dcd51d21ed") };
 pub const PLAYREADY_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("9a04f07998404286ab92e65be0885f95") };
+pub const FAIRPLAYNFLX_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("29701fe43cc74a348c5bae90c7439a47") };
 pub const IRDETO_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("80a6be7e14484c379e70d5aebe04c8d2") };
 pub const MARLIN_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("5e629af538da4063897797ffbd9902d4") };
 pub const NAGRA_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("adb41c242dbf4a6d958b4457c0d27b95") };
@@ -367,6 +374,7 @@ impl fmt::Display for PsshBox {
             PsshData::Nagra(pd) => write!(f, "NagraPSSH<{key_str}{pd:?}>"),
             PsshData::WisePlay(pd) => write!(f, "WisePlayPSSH<{key_str}{}>", pd.json),
             PsshData::CommonEnc(pd) => write!(f, "CommonPSSH<{key_str}pssh data len {} octets>", pd.len()),
+            PsshData::FairPlay(pd) => write!(f, "FairPlayPSSH<{key_str}pssh data len {} octets>", pd.len()),
         }
     }
 }
@@ -611,6 +619,15 @@ fn read_pssh_box(rdr: &mut Cursor<&[u8]>) -> Result<PsshBox> {
                 pssh_data: PsshData::CommonEnc(pssh_data),
             })
         },
+        FAIRPLAYNFLX_SYSTEM_ID => {
+            Ok(PsshBox {
+                version,
+                flags: version_and_flags & 0xF,
+                system_id,
+                key_ids,
+                pssh_data: PsshData::FairPlay(pssh_data),
+            })
+        },
         _ => Err(anyhow!("can't parse this system_id type: {:?}", system_id)),
     }
 }
@@ -693,6 +710,15 @@ pub fn pprint(pssh: &PsshBox) {
         },
         PsshData::CommonEnc(pd) => {
             println!("  Common PSSH data ({} octets)", pd.len());
+            if !pd.is_empty() {
+                println!("== Hexdump of pssh data ==");
+                let mut hxbuf = Vec::new();
+                hxdmp::hexdump(pd, &mut hxbuf).unwrap();
+                println!("{}", String::from_utf8_lossy(&hxbuf));
+            }
+        },
+        PsshData::FairPlay(pd) => {
+            println!("  FairPlay PSSH data ({} octets)", pd.len());
             if !pd.is_empty() {
                 println!("== Hexdump of pssh data ==");
                 let mut hxbuf = Vec::new();

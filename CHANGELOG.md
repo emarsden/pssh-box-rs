@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.4] - Unreleased
+
+- Add support for the FairPlay DRM system, and in particular the mystery FairPlay PSSH boxes that
+  are reported to be used by Netflix for DASH-like streaming.
+
+
 ## [0.1.3] - 2024-02-14
 
 - New example `fetch-pssh-data`, a commandline utility which fetches an initialization segment from

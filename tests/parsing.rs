@@ -2,8 +2,17 @@
 
 use base64::prelude::{Engine as _, BASE64_STANDARD};
 use test_log::test;
-use pssh_box::{from_base64, from_bytes, from_buffer, find_iter, pprint, PsshData, DRMKeyId};
-use pssh_box::{WIDEVINE_SYSTEM_ID, PLAYREADY_SYSTEM_ID, COMMON_SYSTEM_ID, IRDETO_SYSTEM_ID, WISEPLAY_SYSTEM_ID, MARLIN_SYSTEM_ID, NAGRA_SYSTEM_ID};
+use pssh_box::{from_base64, from_hex, from_bytes, from_buffer, find_iter, pprint};
+use pssh_box::{PsshData, DRMKeyId};
+use pssh_box::{
+    WIDEVINE_SYSTEM_ID,
+    PLAYREADY_SYSTEM_ID,
+    COMMON_SYSTEM_ID,
+    IRDETO_SYSTEM_ID,
+    WISEPLAY_SYSTEM_ID,
+    MARLIN_SYSTEM_ID,
+    NAGRA_SYSTEM_ID,
+    FAIRPLAYNFLX_SYSTEM_ID};
 
 
 #[test]
@@ -141,6 +150,14 @@ fn test_parsing_widevine_v1() {
         assert_eq!(ProtectionScheme::try_from(pd.protection_scheme.unwrap()).unwrap(),
                    ProtectionScheme::from_str_name("CENC").unwrap());
     }
+
+    let boxes = from_base64("AAAAinBzc2gBAAAA7e+LqXnWSs6jyCfc1R0h7QAAAAMBABjPrw1FrZKp3Uaklub1AQFA6rnmTx2Vc6TOTwKt2wEC6NEQrkqOnj8BE9GY8RcAAAA2EhABABjPrw1FrZKp3Uaklub1EhABAUDqueZPHZVzpM5PAq3bEhABAujREK5Kjp4/ARPRmPEX")
+        .unwrap();
+    assert_eq!(boxes.len(), 1);
+    let pssh = &boxes[0];
+    assert_eq!(pssh.system_id, WIDEVINE_SYSTEM_ID);
+    assert_eq!(pssh.key_ids.len(), 3);
+    assert_eq!(pssh.key_ids[0], DRMKeyId::try_from("010018cfaf0d45ad92a9dd46a496e6f5").unwrap());
 }
 
 
@@ -458,6 +475,21 @@ fn test_parsing_commonenc_v1() {
     assert_eq!(pssh.system_id, COMMON_SYSTEM_ID);
     assert_eq!(pssh.key_ids.len(), 16);
 }
+
+// The FairPlay DRM system has very little public information available nor sample PSSH boxes. This
+// is a sample PSSH from the FairPlay PSSH system as used by Netflix.
+#[test]
+fn test_parsing_fairplay() {
+    let boxes = from_hex("00000020707373680000000029701FE43CC74A348C5BAE90C7439A4700000000")
+        .unwrap();
+    assert_eq!(boxes.len(), 1);
+    let pssh = &boxes[0];
+    println!("FairPlay> {pssh:?}");
+    pprint(&pssh);
+    assert_eq!(pssh.version, 0);
+    assert_eq!(pssh.system_id, FAIRPLAYNFLX_SYSTEM_ID);
+}
+
 
 #[test]
 fn test_parsing_multisystem() {
