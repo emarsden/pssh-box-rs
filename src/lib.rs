@@ -31,7 +31,6 @@ pub mod nagra;
 pub mod wiseplay;
 
 use std::fmt;
-use std::convert::TryFrom;
 use std::io::{Cursor, Read, Write};
 use hex_literal::hex;
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
@@ -242,6 +241,20 @@ impl TryFrom<&str> for DRMKeyId {
         if value.len() == 32 {
             if let Ok(id) = hex::decode(value) {
                 return DRMKeyId::try_from(id);
+            }
+        }
+        // UUID-style format, like 5ade6a1e-c0d4-43c6-92f2-2d36862ba8dd
+        if value.len() == 36 {
+            let v36 = value.as_bytes();
+            if v36[8] == b'-' &&
+                v36[13] == b'-' &&
+                v36[18] == b'-' &&
+                v36[23] == b'-'
+            {
+                let maybe_hex = value.replace('-', "");
+                if let Ok(id) = hex::decode(maybe_hex) {
+                    return DRMKeyId::try_from(id);
+                }
             }
         }
         Err(())
