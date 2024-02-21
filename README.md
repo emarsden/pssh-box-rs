@@ -74,8 +74,11 @@ The protoc compiler is used during the build process to translate the protobuf i
 for Widevine PSSH data into Rust structs. This happens in the `build.rs` file.
 
 The default configuration of this crate depends on the `protobuf-src` crate to build a vendored
-version of the protoc compiler. Disable the default feature `vendored-protoc` to use a locally
-installed protoc compiler instead (from Debian package `protobuf-compiler`, for example).
+version of the protoc compiler. This requires a working C++ compiler and autoconf support. To build
+on Windows, the simplest solution seems to be the UCRT64 environment of
+[MSYS2](https://www.msys2.org/); see our GitHub continuous integration workflow for one recipe that
+works. Disable the default feature `vendored-protoc` to use a locally installed protoc compiler
+instead (from Debian package `protobuf-compiler`, for example).
 
 
 ## License
