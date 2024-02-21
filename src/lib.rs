@@ -409,18 +409,18 @@ impl ToBytes for PsshBox {
                 + self.key_ids.len() as u32 * 16;
         }
         out.write_u32::<BigEndian>(total_length);
-        out.write(b"pssh");
+        out.write_all(b"pssh");
         let version_and_flags: u32 = self.flags ^ ((self.version as u32) << 24);
         out.write_u32::<BigEndian>(version_and_flags);
-        out.write(&self.system_id.id);
+        out.write_all(&self.system_id.id);
         if self.version == 1 {
             out.write_u32::<BigEndian>(self.key_ids.len() as u32);
             for k in &self.key_ids {
-                out.write(&k.id);
+                out.write_all(&k.id);
             }
         }
         out.write_u32::<BigEndian>(pssh_data_bytes.len() as u32);
-        out.write(&pssh_data_bytes);
+        out.write_all(&pssh_data_bytes);
         out
     }
 }
