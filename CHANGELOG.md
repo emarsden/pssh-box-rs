@@ -1,9 +1,11 @@
 # Changelog
 
-## [0.1.4] - Unreleased
+## [0.1.4] - 2024-02-21
 
 - Add support for the FairPlay DRM system, and in particular the mystery FairPlay PSSH boxes that
   are reported to be used by Netflix for DASH-like streaming.
+
+- Add support for UUID-style strings in `DRMKeyId::try_from(&str)`.
 
 
 ## [0.1.3] - 2024-02-14
