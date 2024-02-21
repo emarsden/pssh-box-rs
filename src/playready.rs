@@ -10,7 +10,6 @@
 
 use std::fmt;
 use std::io::{Read, Cursor};
-use std::convert::TryFrom;
 use std::fmt::{Error, Write};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use serde::{Serialize, Deserialize};
