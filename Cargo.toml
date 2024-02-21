@@ -1,7 +1,7 @@
 [package]
 name = "pssh-box"
 description = "Parsing and serialization support for PSSH boxes used in DRM systems"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["Eric Marsden <eric.marsden@risk-engineering.org>"]
 readme = "README.md"
 repository = "https://github.com/emarsden/pssh-box-rs/"
