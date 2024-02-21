@@ -19,9 +19,11 @@ fn test_serialization() {
     assert_eq!("DRMKeyId<72c3ed2c-7a5f-4aad-902f-cbef1efe89a9>",
                DRMKeyId::try_from("72c3ed2c7a5f4aad902fcbef1efe89a9").unwrap().to_string());
 
+    assert_eq!("DRMKeyId<72c3ed2c-7a5f-4aad-902f-cbef1efe89a9>",
+               DRMKeyId::try_from("72c3ed2c-7a5f-4aad-902f-cbef1efe89a9").unwrap().to_string());
+
     let b64 = "AAAAOHBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAABgSEAAWNwaftdGsPEdH4BMi5MJI49yVmwY=";
-    let boxes = from_base64(b64)
-        .unwrap();
+    let boxes = from_base64(b64).unwrap();
     let bxs = boxes.to_string();
     assert!(bxs.contains("WidevinePSSH"));
     assert!(bxs.contains("001637069fb5d1ac3c4747e01322e4c2"));
