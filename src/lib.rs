@@ -17,6 +17,7 @@
 //! - Irdeto
 //! - Marlin
 //! - Nagra
+//! - FairPlay (the unofficial version used by Netflix)
 //! - Common Encryption
 //!
 //! PSSH boxes contain (depending on the DRM system) information on the key_ID for which to obtain a
@@ -294,6 +295,7 @@ pub struct PsshBox {
 }
 
 impl PsshBox {
+    /// Return an empty v1 Widevine PSSH box.
     pub fn new_widevine() -> PsshBox {
         let empty = WidevinePsshData {
             provider: None,
@@ -309,6 +311,7 @@ impl PsshBox {
         }
     }
 
+    /// Return an empty v1 PlayReady PSSH box.
     pub fn new_playready() -> PsshBox {
         let empty = PlayReadyPsshData::new();
         PsshBox {
