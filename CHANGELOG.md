@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.5] - 2024-02-27
+
+- Generation of a Widevine PSSH: fix bug related to spurious inclusion of an empty string for the
+  `policy` field when the field is not set explicitly (reported by ElCap).
+
+
 ## [0.1.4] - 2024-02-21
 
 - Add support for the FairPlay DRM system, and in particular the mystery FairPlay PSSH boxes that

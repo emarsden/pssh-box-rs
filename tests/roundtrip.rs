@@ -28,6 +28,8 @@ fn test_roundtrip_widevine() {
             assert_eq!(pd1.content_id, pd2.content_id);
             assert_eq!(pd1.provider, pd2.provider);
             assert_eq!(pd1.key_id, pd2.key_id);
+            assert_eq!(pd1.policy, None);
+            assert_eq!(pd1.policy, pd2.policy);
         }
     }
 }

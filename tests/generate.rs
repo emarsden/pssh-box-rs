@@ -16,6 +16,7 @@ fn test_roundtrip_widevine_bytes() {
     if let PsshData::Widevine(ref mut pd) = pssh.pssh_data {
         pd.provider = Some(String::from("pssh-box-rs"));
         pd.content_id = Some(hex::encode("DEADBEAF").into());
+        assert_eq!(pd.policy, None);
     }
     pprint(&pssh);
     let serialized = pssh.clone().to_bytes();
@@ -27,6 +28,7 @@ fn test_roundtrip_widevine_bytes() {
     if let PsshData::Widevine(ref pd) = parsed.pssh_data {
         assert_eq!(pd.provider, Some(String::from("pssh-box-rs")));
         assert_eq!(pd.content_id, Some(hex::encode("DEADBEAF").into()));
+        assert_eq!(pd.policy, None);
     }
 }
 

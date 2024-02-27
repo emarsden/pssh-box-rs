@@ -299,7 +299,6 @@ impl PsshBox {
     pub fn new_widevine() -> PsshBox {
         let empty = WidevinePsshData {
             provider: None,
-            policy: Some(String::from("")),
             ..Default::default()
         };
         PsshBox {
