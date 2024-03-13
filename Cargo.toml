@@ -15,7 +15,7 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0.197", features = ["derive"] }
 serde_path_to_error = "0.1.15"
-serde_with = { version = "3.6.1", features = ["base64"] }
+serde_with = { version = "3.7.0", features = ["base64"] }
 serde-xml-rs = "0.6.0"
 serde_json = "1.0.114"
 zerocopy = { version = "0.7.32", features = ["derive"] }
@@ -31,14 +31,14 @@ bstr = "1.9.1"
 num_enum = "0.7.2"
 base64 = "0.21.7"
 tracing = { version = "0.1.40", features = ["attributes"] }
-anyhow = "1.0.80"
+anyhow = "1.0.81"
 
 [dev-dependencies]
 clap = { version = "=4.3.24", features = ["cargo", "unicode", "wrap_help"] }
-reqwest = { version = "0.11.25", features = ["blocking"] }
+reqwest = { version = "0.11.26", features = ["blocking"] }
 tokio = { version = "1.36.0", features = ["rt-multi-thread", "time", "macros"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "time"] }
-test-log = "0.2.15"
+test-log = { version = "0.2.15", features = ["trace"] }
 pretty_assertions = "1.4.0"
 
 [features]
