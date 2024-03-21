@@ -35,7 +35,7 @@ anyhow = "1.0.81"
 
 [dev-dependencies]
 clap = { version = "=4.3.24", features = ["cargo", "unicode", "wrap_help"] }
-reqwest = { version = "0.11.26", features = ["blocking"] }
+reqwest = { version = "0.11.27", features = ["blocking"] }
 tokio = { version = "1.36.0", features = ["rt-multi-thread", "time", "macros"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "time"] }
 test-log = { version = "0.2.15", features = ["trace"] }
