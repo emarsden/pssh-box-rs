@@ -20,8 +20,29 @@ use clap::{Arg, ArgAction};
 use pssh_box::{from_base64, from_hex, pprint};
 use pssh_box::widevine::WidevinePsshData;
 use prost::Message;
+use tracing_subscriber::EnvFilter;
+use tracing_subscriber::fmt::writer::MakeWriterExt;
+use tracing_subscriber::prelude::*;
+use tracing::Level;
+
 
 fn main() -> Result<()> {
+    // Logs of level >= INFO go to stdout, otherwise (warnings and errors) to stderr.
+    let stderr = std::io::stderr.with_max_level(Level::WARN);
+    let fmt_layer = tracing_subscriber::fmt::layer()
+        .map_writer(move |w| stderr.or_else(w))
+        .compact()
+        .with_target(false);
+    let filter_layer = EnvFilter::try_from_default_env()
+        .or_else(|_| EnvFilter::try_new("info"))
+        .expect("initializing logging");
+    tracing_subscriber::registry()
+        .with(filter_layer)
+        .with(fmt_layer)
+        .init();
+
+    tracing::trace!("Initialized");
+    
     let clap = clap::Command::new("decode-pssh")
         .about("Parse DRM initialization data (a PSSH box).")
         .version(clap::crate_version!())
