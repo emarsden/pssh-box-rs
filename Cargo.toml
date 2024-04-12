@@ -31,7 +31,7 @@ bstr = "1.9.1"
 num_enum = "0.7.2"
 base64 = "0.21.7"
 tracing = { version = "0.1.40", features = ["attributes"] }
-anyhow = "1.0.81"
+anyhow = "1.0.82"
 
 [dev-dependencies]
 clap = { version = "=4.3.24", features = ["cargo", "unicode", "wrap_help"] }
