@@ -13,7 +13,7 @@ edition = "2021"
 
 
 [dependencies]
-serde = { version = "1.0.202", features = ["derive"] }
+serde = { version = "1.0.203", features = ["derive"] }
 serde_path_to_error = "0.1.15"
 serde_with = { version = "3.8.1", features = ["base64"] }
 serde-xml-rs = "0.6.0"
@@ -31,7 +31,7 @@ bstr = "1.9.1"
 num_enum = "0.7.2"
 base64 = "0.22.1"
 tracing = { version = "0.1.40", features = ["attributes"] }
-anyhow = "1.0.84"
+anyhow = "1.0.86"
 
 [dev-dependencies]
 clap = { version = "=4.3.24", features = ["cargo", "unicode", "wrap_help"] }
