@@ -17,6 +17,8 @@ PSSH boxes are used:
 
 - in a `<cenc:pssh>` element in a DASH MPD manifest
 
+- in an EXT-X-SESSION-KEY field of an m3u8 playlist.
+
 A PSSH box includes information for a single DRM system. This library supports the PSSH data formats
 for the following DRM systems:
 
@@ -51,6 +53,9 @@ This crate provides the following functionality:
 A **commandline utility** for decoding PSSH boxes and PSSH data in various formats is available in
 `example/decode-pssh.rs`. 
 
+If you wish to use this functionality in web applications, you may be interested in the
+[pssh-box-wasm](https://github.com/emarsden/pssh-box-wasm/) library, which provides functionality
+for using this code as WebAssembly.
 
 
 ## Usage
