@@ -39,7 +39,9 @@ use zerocopy::{FromZeroes, FromBytes};
 use serde::{Serialize, Deserialize};
 use prost::Message;
 use base64::prelude::{Engine as _, BASE64_STANDARD};
+use base64::engine;
 use anyhow::{Result, Context, anyhow};
+use tracing::trace;
 use crate::widevine::WidevinePsshData;
 use crate::playready::PlayReadyPsshData;
 use crate::irdeto::IrdetoPsshData;
@@ -503,15 +505,54 @@ impl fmt::Display for PsshBoxVec {
     }
 }
 
-// Initialization Data is always one or more concatenated 'pssh' boxes. The CDM must be able to
-// examine multiple 'pssh' boxes in the Initialization Data to find a 'pssh' box that it supports.
+// Initialization Data is always composed of one or more concatenated 'pssh' boxes. The CDM must be
+// able to examine multiple 'pssh' boxes in the Initialization Data to find a 'pssh' box that it
+// supports.
 
 /// Parse one or more PSSH boxes from some initialization data encoded in base64 format.
 pub fn from_base64(init_data: &str) -> Result<PsshBoxVec> {
-    let buf = BASE64_STANDARD.decode(init_data)
-        .context("decoding base64")?;
-    from_bytes(&buf)
-        .context("parsing the PSSH initialization data")
+    let b64_tolerant_config = engine::GeneralPurposeConfig::new()
+        .with_decode_allow_trailing_bits(true)
+        .with_decode_padding_mode(engine::DecodePaddingMode::Indifferent);
+    let b64_tolerant_engine = engine::GeneralPurpose::new(&base64::alphabet::STANDARD, b64_tolerant_config);
+    if init_data.len() < 8 {
+        return Err(anyhow!("insufficient length for init data"));
+    }
+    // We start by attempting to base64 decode the full string and parse that.
+    if let Ok(buf) = b64_tolerant_engine.decode(init_data) {
+        return from_bytes(&buf);
+    }
+    // If that doesn't work, attempt to decode PSSH boxes from subsequences of the init data. We
+    // look at a sliding window that starts at start and ends at start + the length we see from the
+    // PSSH box header.
+    let total_len = init_data.len();
+    let mut start = 0;
+    let mut boxes = Vec::new();
+    while start < total_len - 1 {
+        let buf = b64_tolerant_engine.decode(&init_data[start..start+7])
+            .context("base64 decoding first 32-bit length word")?;
+        let mut rdr = Cursor::new(buf);
+        let box_size: u32 = rdr.read_u32::<BigEndian>()
+            .context("reading PSSH box size")?;
+        trace!("box size from header = {box_size}");
+        // The number of octets that we obtain from decoding box_size chars worth of base64
+        let wanted_octets = (box_size.div_ceil(3) * 4) as usize;
+        let end = start + wanted_octets;
+        trace!("attempting to decode {wanted_octets} octets out of {}", init_data.len());
+        if end > init_data.len() {
+            // FIXME actually we shouldn't fail here, but rather break and return any boxes that we did manage to parse
+            return Err(anyhow!("insufficient length for init data (wanted {end}, have {})", init_data.len()));
+        }
+        let buf = b64_tolerant_engine.decode(&init_data[start..end])
+            .context("decoding base64")?;
+        let bx = from_bytes(&buf)
+            .context("parsing the PSSH initialization data")?;
+        assert!(bx.len() == 1);
+        trace!("Got one box {}", bx[0].clone());
+        boxes.push(bx[0].clone());
+        start = end;
+    }
+    Ok(PsshBoxVec(boxes))
 }
 
 /// Parse one or more PSSH boxes from some initialization data encoded in hex format.
@@ -524,8 +565,9 @@ pub fn from_hex(init_data: &str) -> Result<PsshBoxVec> {
 
 /// Parse a single PSSH box.
 fn read_pssh_box(rdr: &mut Cursor<&[u8]>) -> Result<PsshBox> {
-    let _size: u32 = rdr.read_u32::<BigEndian>()
-        .context("reading pssh box size")?;
+    let size: u32 = rdr.read_u32::<BigEndian>()
+        .context("reading PSSH box size")?;
+    trace!("PSSH box of size {size} octets");
     let mut box_header = [0u8; 4];
     rdr.read_exact(&mut box_header)
         .context("reading box header")?;
@@ -534,8 +576,9 @@ fn read_pssh_box(rdr: &mut Cursor<&[u8]>) -> Result<PsshBox> {
         return Err(anyhow!("expecting BMFF header"));
     }
     let version_and_flags: u32 = rdr.read_u32::<BigEndian>()
-        .context("reading pssh version/flags")?;
+        .context("reading PSSH version/flags")?;
     let version: u8 = (version_and_flags >> 24).try_into().unwrap();
+    trace!("PSSH box version {version}");
     if version > 1 {
         return Err(anyhow!("unknown PSSH version {version}"));
     }
@@ -547,6 +590,7 @@ fn read_pssh_box(rdr: &mut Cursor<&[u8]>) -> Result<PsshBox> {
     if version == 1 {
         let mut kid_count = rdr.read_u32::<BigEndian>()
             .context("reading KID count")?;
+        trace!("PSSH box has {kid_count} KIDs in box header");
         while kid_count > 0 {
             let mut key = [0u8; 16];
             rdr.read_exact(&mut key)
@@ -556,7 +600,8 @@ fn read_pssh_box(rdr: &mut Cursor<&[u8]>) -> Result<PsshBox> {
         }
     }
     let pssh_data_len = rdr.read_u32::<BigEndian>()
-        .context("reading pssh data length")?;
+        .context("reading PSSH data length")?;
+    trace!("PSSH box data length {pssh_data_len} octets");
     let mut pssh_data = Vec::new();
     rdr.take(pssh_data_len.into()).read_to_end(&mut pssh_data)
         .context("extracting PSSH data")?;
@@ -655,7 +700,15 @@ pub fn from_bytes(init_data: &[u8]) -> Result<PsshBoxVec> {
     let mut boxes = PsshBoxVec::new();
     while (rdr.position() as usize) < total_len - 1  {
         let bx = read_pssh_box(&mut rdr)?;
-        boxes.add(bx);
+        boxes.add(bx.clone());
+        trace!("Read one box {bx} from bytes, remaining {} octets", total_len as u64 - rdr.position());
+        let pos = rdr.position() as usize;
+        let remaining = &rdr.get_ref()[pos..total_len];
+        println!("Remaining> {} (len {})", hex::encode(remaining), remaining.len());
+        // skip over any octets that are NULL
+        if remaining.iter().all(|b| *b == 0) {
+            break;
+        }
     }
     Ok(boxes)
 }
