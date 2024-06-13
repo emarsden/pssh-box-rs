@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6] - 2024-06-13
+
+- Update to v2 of the `protobuf-src` crate.
+
+- Parsing: additional diagnostics information is logged at the `trace` level.
+
+
 ## [0.1.5] - 2024-02-27
 
 - Generation of a Widevine PSSH: fix bug related to spurious inclusion of an empty string for the
