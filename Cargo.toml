@@ -17,7 +17,7 @@ serde = { version = "1.0.203", features = ["derive"] }
 serde_path_to_error = "0.1.16"
 serde_with = { version = "3.8.1", features = ["base64"] }
 serde-xml-rs = "0.6.0"
-serde_json = "1.0.117"
+serde_json = "1.0.118"
 zerocopy = { version = "0.7.34", features = ["derive"] }
 quick-xml = { version = "0.32.0", features = ["serialize", "overlapped-lists", "serde-types"] }
 prost = { version = "0.12.6", features = ["prost-derive"] }
