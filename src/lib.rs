@@ -708,7 +708,6 @@ pub fn from_bytes(init_data: &[u8]) -> Result<PsshBoxVec> {
         trace!("Read one box {bx} from bytes, remaining {} octets", total_len as u64 - rdr.position());
         let pos = rdr.position() as usize;
         let remaining = &rdr.get_ref()[pos..total_len];
-        println!("Remaining> {} (len {})", hex::encode(remaining), remaining.len());
         // skip over any octets that are NULL
         if remaining.iter().all(|b| *b == 0) {
             break;
