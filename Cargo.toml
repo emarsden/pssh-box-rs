@@ -13,7 +13,7 @@ edition = "2021"
 
 
 [dependencies]
-serde = { version = "1.0.203", features = ["derive"] }
+serde = { version = "1.0.204", features = ["derive"] }
 serde_path_to_error = "0.1.16"
 serde_with = { version = "3.8.3", features = ["base64"] }
 serde-xml-rs = "0.6.0"
