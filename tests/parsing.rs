@@ -366,6 +366,16 @@ fn test_parsing_nagra() {
         assert_eq!(pd.content_id, "CUP003");
         assert_eq!(pd.key_id, "ad1527c4-bce4-4eb3-8605-3b17d38e6d17");
     }
+
+    let boxes = from_base64("AAAAfHBzc2gAAAAArbQcJC2/Sm2Vi0RXwNJ7lQAAAFxleUpqYjI1MFpXNTBTV1FpT2lKRFZWQXdNVEVpTENKclpYbEpaQ0k2SWpsaU56QmpNV05tTFdFd01ERXROR0poWXkwNE1UUmxMVE01TmprMU5XVm1OR000WmlKOQ==")
+        .unwrap();
+    assert_eq!(boxes.len(), 1);
+    let pssh = &boxes[0];
+    assert_eq!(pssh.system_id, NAGRA_SYSTEM_ID);
+    if let PsshData::Nagra(ref pd) = pssh.pssh_data {
+        assert_eq!(pd.content_id, "CUP011");
+        assert_eq!(pd.key_id, "9b70c1cf-a001-4bac-814e-396955ef4c8f");
+    }
 }
 
 
