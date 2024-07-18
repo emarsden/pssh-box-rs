@@ -47,7 +47,8 @@ vendored-protoc = ["dep:protobuf-src"]
 
 [build-dependencies]
 prost-build = { version = "0.12" }
-protobuf-src = { version = "2.0.1", optional = true }
+# protobuf-src = { version = "2.0.1", optional = true }
+protobuf-src = { git = "https://github.com/emarsden/rust-protobuf-native", optional = true }
 
 [profile.release]
 lto = true
