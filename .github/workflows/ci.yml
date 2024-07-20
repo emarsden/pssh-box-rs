@@ -12,6 +12,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
       - uses: taiki-e/install-action@cargo-hack
 
+      # To remove once https://github.com/MaterializeInc/rust-protobuf-native/issues/20 is resolved
+      - name: Install gtest
+        uses: MarkusJx/googletest-installer@v1.1
+
       - name: Install protoc compiler
         run: |
           sudo apt-get update
@@ -28,6 +32,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
 
+      # To remove once https://github.com/MaterializeInc/rust-protobuf-native/issues/20 is resolved
+      - name: Install gtest
+        uses: MarkusJx/googletest-installer@v1.1
+
       - name: Install protoc compiler
         run: |
           sudo apt-get update
@@ -41,9 +49,14 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+
+      # To remove once https://github.com/MaterializeInc/rust-protobuf-native/issues/20 is resolved
+      - name: Install gtest
+        uses: MarkusJx/googletest-installer@v1.1
+
       - uses: msys2/setup-msys2@v2
         with:
-          install: base-devel autotools mingw-w64-x86_64-toolchain mingw-w64-x86_64-rust mingw-w64-ucrt-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-tools-git git
+          install: base-devel autotools mingw-w64-x86_64-toolchain mingw-w64-x86_64-rust mingw-w64-ucrt-x86_64-gcc mingw-w64-x86_64-cmake git
 
       - name: run tests
         shell: msys2 {0}
@@ -56,6 +69,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+
+      # To remove once https://github.com/MaterializeInc/rust-protobuf-native/issues/20 is resolved
+      - name: Install gtest
+        uses: MarkusJx/googletest-installer@v1.1
 
       - name: install protobuf compiler
         run: brew install protobuf

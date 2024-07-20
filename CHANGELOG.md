@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.7] - Unreleased
+
+- Workaround for bug in protobuf-src crate which causes build to fail.
+
+
 ## [0.1.6] - 2024-06-13
 
 - Update to v2 of the `protobuf-src` crate.
