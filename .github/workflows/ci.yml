@@ -72,7 +72,7 @@ jobs:
 
       # To remove once https://github.com/MaterializeInc/rust-protobuf-native/issues/20 is resolved
       - name: Install gtest
-        uses: MarkusJx/googletest-installer@v1.1
+        run: brew install googletest
 
       - name: install protobuf compiler
         run: brew install protobuf
