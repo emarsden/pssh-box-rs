@@ -1,8 +1,8 @@
 # Changelog
 
-## [0.1.7] - Unreleased
+## [0.1.7] - 2024-07-22
 
-- Workaround for bug in protobuf-src crate which causes build to fail.
+- Update protobuf-src crate which was causing builds to fail.
 
 
 ## [0.1.6] - 2024-06-13
