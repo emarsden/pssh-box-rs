@@ -495,6 +495,18 @@ fn test_parsing_commonenc_v1() {
     assert_eq!(pssh.version, 1);
     assert_eq!(pssh.system_id, COMMON_SYSTEM_ID);
     assert_eq!(pssh.key_ids.len(), 16);
+
+    let boxes = from_base64("AAAA5HBzc2gBAAAAEHfv7MCyTQKs4zweUuL7SwAAAAxxLsEybBg/rpWDi6wC+5ejAAAAAAAAAAAAAAAAAAAAAHsidiI6IjIiLCJmaWQiOiJodW50YTAwMzA1Iiwic3ZpZCI6ImRpZ2l0YWwiLCJwbCI6ImV5SndhV1FpT2lKb2RXNTBZVEF3TXpBMUlpd2laR1ZzYVhabGNubGZkSGx3WlNJNkluTjBJbjAiLCJjcyI6IjhiYjMyNDMzZTYxYzQ4OGRiZDc2YmFlZjkwNWYwMWRhIn0AAAAAAAAAAAAAAAAAAAAA")
+        .unwrap();
+    assert_eq!(boxes.len(), 1);
+    let pssh = &boxes[0];
+    assert_eq!(pssh.version, 1);
+    assert_eq!(pssh.system_id, COMMON_SYSTEM_ID);
+    assert_eq!(pssh.key_ids.len(), 12);
+    let wanted = DRMKeyId::try_from("68756e74613030333035222c22737669").unwrap();
+    assert!(pssh.key_ids.iter()
+            .find(|k| **k == wanted)
+            .is_some());
 }
 
 // The FairPlay DRM system has very little public information available nor sample PSSH boxes. This
