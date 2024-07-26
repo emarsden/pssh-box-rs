@@ -16,6 +16,7 @@ use serde::{Serialize, Deserialize};
 use serde_with::{serde_as, skip_serializing_none};
 use serde_with::base64::Base64;
 use num_enum::TryFromPrimitive;
+use tracing::trace;
 use anyhow::{Result, Context, anyhow};
 use crate::ToBytes;
 
@@ -212,7 +213,7 @@ fn parse_playready_record(rdr: &mut Cursor<&[u8]>) -> Result<PlayReadyRecord> {
                 let ca_tag_end = subseq.find('>')
                     .context("finding end of CUSTOMATTRIBUTES element")?;
                 let inner_start = ca_tag_end + 1;
-                println!("start = {}, inner_start = {}", start, inner_start);
+                trace!("start = {}, inner_start = {}", start, inner_start);
                 if let Some(inner) = subseq.get(inner_start..) {
                     custom_attributes = Some(String::from(inner));
                 }
@@ -267,7 +268,7 @@ impl ToBytes for PlayReadyPsshData {
         let mut buf = Vec::<u8>::new();
         let mut records_buf = Vec::<u8>::new();
         for r in &self.record {
-            println!("Serializing playready, record of length {}", r.to_bytes().len());
+            trace!("Serializing playready, record of length {}", r.to_bytes().len());
             records_buf.append(&mut r.to_bytes());
         }
         let total_length: u32 = 4 + 2 + records_buf.len() as u32;

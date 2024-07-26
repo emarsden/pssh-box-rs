@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.8] - Unreleased
+
+- New method `contains()` on `PsshBoxVec`.
+
+
 ## [0.1.7] - 2024-07-22
 
 - Update protobuf-src crate which was causing builds to fail.

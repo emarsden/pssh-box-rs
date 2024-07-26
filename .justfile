@@ -34,3 +34,6 @@ termux:
     cargo update
     cargo test --no-default-features -- --show-output
 
+
+clippy:
+    cargo clippy -- -Wclippy::unwrap_used -Wclippy::expect_used -Wclippy::indexing_slicing -Wclippy::panic

@@ -353,7 +353,7 @@ impl fmt::Display for PsshBox {
         }
         let key_str = match keys.len() {
             0 => String::from(""),
-            1 => format!("key_id: {}, ", keys[0]),
+            1 => format!("key_id: {}, ", keys.first().unwrap()),
             _ => format!("key_ids: {}, ", keys.join(", ")),
         };
         match &self.pssh_data {
@@ -377,14 +377,16 @@ impl fmt::Display for PsshBox {
                     }
                 }
                 if keys.len() == 1 {
-                    items.push(format!("key_id: {}", keys[0]));
+                    items.push(format!("key_id: {}", keys.first().unwrap()));
                 }
                 if keys.len() > 1 {
                     items.push(format!("key_ids: {}", keys.join(", ")));
                 }
-                for (k, v) in json.as_object().unwrap().iter() {
-                    if k.ne("algorithm") && k.ne("key_id") {
-                        items.push(format!("{k}: {v}"));
+                if let Some(jo) = json.as_object() {
+                    for (k, v) in jo.iter() {
+                        if k.ne("algorithm") && k.ne("key_id") {
+                            items.push(format!("{k}: {v}"));
+                        }
                     }
                 }
                 write!(f, "WidevinePSSH<{}>", items.join(", "))
@@ -440,6 +442,10 @@ pub struct PsshBoxVec(Vec<PsshBox>);
 impl PsshBoxVec {
     pub fn new() -> PsshBoxVec {
         PsshBoxVec(Vec::new())
+    }
+
+    pub fn contains(&self, bx: &PsshBox) -> bool {
+        self.0.contains(bx)
     }
 
     pub fn add(&mut self, bx: PsshBox) {
@@ -544,7 +550,8 @@ pub fn from_base64(init_data: &str) -> Result<PsshBoxVec> {
         let end = start + wanted_octets;
         trace!("attempting to decode {wanted_octets} octets out of {}", init_data.len());
         if end > init_data.len() {
-            // FIXME actually we shouldn't fail here, but rather break and return any boxes that we did manage to parse
+            // FIXME actually we shouldn't fail here, but rather break and return any boxes that we
+            // did manage to parse
             return Err(anyhow!("insufficient length for init data (wanted {end}, have {})", init_data.len()));
         }
         let buf = b64_tolerant_engine.decode(&init_data[start..end])
@@ -707,10 +714,11 @@ pub fn from_bytes(init_data: &[u8]) -> Result<PsshBoxVec> {
         boxes.add(bx.clone());
         trace!("Read one box {bx} from bytes, remaining {} octets", total_len as u64 - rdr.position());
         let pos = rdr.position() as usize;
-        let remaining = &rdr.get_ref()[pos..total_len];
-        // skip over any octets that are NULL
-        if remaining.iter().all(|b| *b == 0) {
-            break;
+        if let Some(remaining) = &rdr.get_ref().get(pos..total_len) {
+            // skip over any octets that are NULL
+            if remaining.iter().all(|b| *b == 0) {
+                break;
+            }
         }
     }
     Ok(boxes)
