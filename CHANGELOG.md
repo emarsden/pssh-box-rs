@@ -1,8 +1,10 @@
 # Changelog
 
-## [0.1.8] - Unreleased
+## [0.1.8] - 2024-07-26
 
 - New method `contains()` on `PsshBoxVec`.
+
+- Replace some debugging printfs by trace logging.
 
 
 ## [0.1.7] - 2024-07-22
