@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.9] - 2024-07-28
+
+- Change the default configuration to use a preinstalled protobuf compiler, instead of attempting to
+  build the `protobuf-src` crate, which causes many headaches on less common platforms. This means
+  that the `vendored-protoc` feature is no longer included in the default features.
+
+
 ## [0.1.8] - 2024-07-26
 
 - New method `contains()` on `PsshBoxVec`.
