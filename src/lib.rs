@@ -39,7 +39,7 @@ use std::fmt;
 use std::io::{Cursor, Read, Write};
 use hex_literal::hex;
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
-use zerocopy::{FromZeroes, FromBytes};
+use zerocopy::FromBytes;
 use serde::{Serialize, Deserialize};
 use prost::Message;
 use base64::prelude::{Engine as _, BASE64_STANDARD};
@@ -92,7 +92,7 @@ impl ToBytes for PsshData {
 }
 
 /// The identifier for a DRM system.
-#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, FromZeroes, FromBytes)]
+#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, FromBytes)]
 pub struct DRMSystemId {
     id: [u8; 16],
 }
@@ -212,7 +212,7 @@ pub const NAGRA_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("adb41c242dbf4a6
 pub const WISEPLAY_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("3d5e6d359b9a41e8b843dd3c6e72c42c") };
 
 /// The Content Key or default_KID.
-#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, FromZeroes, FromBytes)]
+#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, FromBytes)]
 pub struct DRMKeyId {
     id: [u8; 16],
 }
