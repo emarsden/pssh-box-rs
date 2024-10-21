@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.10] - 2024-10-21
+
+- Updated crate dependencies. No functional changes.
+
+
 ## [0.1.9] - 2024-07-28
 
 - Change the default configuration to use a preinstalled protobuf compiler, instead of attempting to
