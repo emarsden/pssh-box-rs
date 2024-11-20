@@ -112,6 +112,18 @@ fn test_parsing_widevine_v0() {
         assert_eq!(pd.content_id, Some(hex::decode("74616d5f74657374").unwrap()));
     }
     assert!(boxes.contains(&boxes[0]));
+
+    let boxes = from_base64("AAAAbHBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAAEwSEA/M6FMNXeIEO8NRh6i8CqMaJDNlNjkwMGE1LTI4MDMtNGZkZS1hN2YxLTg0OWU5YWVkNTc1MCIMQ0lEOjE2Mjc5MDY0SOPclZsG")
+        .unwrap();
+    assert_eq!(boxes.len(), 1);
+    let pssh = &boxes[0];
+    assert_eq!(pssh.system_id, WIDEVINE_SYSTEM_ID);
+    assert_eq!(pssh.version, 0);
+    if let PsshData::Widevine(ref pd) = pssh.pssh_data {
+        assert!(pd.provider.clone().is_some_and(|p| p.eq("3e6900a5-2803-4fde-a7f1-849e9aed5750")));
+        assert_eq!(pd.key_id[0], hex::decode("0fcce8530d5de2043bc35187a8bc0aa3").unwrap());
+        assert_eq!(pd.content_id, Some(hex::decode("4349443a3136323739303634").unwrap()));
+    }
 }
 
 
