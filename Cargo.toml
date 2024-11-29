@@ -18,11 +18,11 @@ serde_path_to_error = "0.1.16"
 serde_with = { version = "3.11.0", features = ["base64"] }
 serde-xml-rs = "0.6.0"
 serde_json = "1.0.133"
-zerocopy = { version = "0.8.10", features = ["derive"] }
+zerocopy = { version = "0.8.11", features = ["derive"] }
 quick-xml = { version = "0.37.1", features = ["serialize", "overlapped-lists", "serde-types"] }
 prost = { version = "0.13.3", features = ["prost-derive"] }
 prost-types = "0.13.3"
-bytes = "1.8.0"
+bytes = "1.9.0"
 byteorder = "1.5.0"
 hex = "0.4.3"
 hex-literal = "0.4.1"
@@ -30,7 +30,7 @@ hxdmp = "0.2.1"
 bstr = "1.11.0"
 num_enum = "0.7.3"
 base64 = "0.22.1"
-tracing = { version = "0.1.40", features = ["attributes"] }
+tracing = { version = "0.1.41", features = ["attributes"] }
 anyhow = "1.0.93"
 
 [dev-dependencies]
