@@ -13,12 +13,12 @@ edition = "2021"
 
 
 [dependencies]
-serde = { version = "1.0.217", features = ["derive"] }
-serde_path_to_error = "0.1.16"
+serde = { version = "1.0.218", features = ["derive"] }
+serde_path_to_error = "0.1.17"
 serde_with = { version = "3.12.0", features = ["base64"] }
 serde-xml-rs = "0.6.0"
-serde_json = "1.0.138"
-zerocopy = { version = "0.8.15", features = ["derive"] }
+serde_json = "1.0.139"
+zerocopy = { version = "0.8.21", features = ["derive"] }
 quick-xml = { version = "0.37.2", features = ["serialize", "overlapped-lists", "serde-types"] }
 prost = { version = "0.13.5", features = ["prost-derive"] }
 prost-types = "0.13.5"
@@ -31,7 +31,7 @@ bstr = "1.11.3"
 num_enum = "0.7.3"
 base64 = "0.22.1"
 tracing = { version = "0.1.41", features = ["attributes"] }
-anyhow = "1.0.95"
+anyhow = "1.0.96"
 
 [dev-dependencies]
 clap = { version = "=4.4.18", features = ["cargo", "unicode", "wrap_help"] }
