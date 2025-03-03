@@ -639,7 +639,7 @@ fn test_parsing_erroneous() {
 
 #[test]
 fn test_find_iter() {
-    let init = reqwest::blocking::get("https://m.dtv.fi/dash/dasherh264v3/drm/a1/i.mp4")
+    let init = reqwest::blocking::get("https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/video/180_250000/cenc_dash/init.mp4")
         .unwrap()
         .bytes()
         .unwrap();
