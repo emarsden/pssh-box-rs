@@ -17,6 +17,8 @@ use pssh_box::{
 
 #[test]
 fn test_parsing_widevine_v0() {
+    use pssh_box::widevine::widevine_pssh_data::ProtectionScheme;
+
     let boxes = from_base64("AAAAR3Bzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAACcIARIBMBoNd2lkZXZpbmVfdGVzdCIKMjAxNV90ZWFycyoFQVVESU8=")
         .unwrap();
     assert_eq!(boxes.len(), 1);
@@ -124,6 +126,20 @@ fn test_parsing_widevine_v0() {
         assert_eq!(pd.key_id[0], hex::decode("0fcce8530d5de2043bc35187a8bc0aa3").unwrap());
         assert_eq!(pd.content_id, Some(hex::decode("4349443a3136323739303634").unwrap()));
     }
+
+    let boxes = from_base64("AAAAP3Bzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAAB8SEN2Q7Myl60KKrKWuRhwzOPYaBWV6ZHJtSPPGiZsG")
+        .unwrap();
+    assert_eq!(boxes.len(), 1);
+    let pssh = &boxes[0];
+    assert_eq!(pssh.system_id, WIDEVINE_SYSTEM_ID);
+    assert_eq!(pssh.version, 0);
+    if let PsshData::Widevine(ref pd) = pssh.pssh_data {
+        assert!(pd.provider.clone().is_some_and(|p| p.eq("ezdrm")));
+        assert_eq!(pd.key_id[0], hex::decode("dd90eccca5eb428aaca5ae461c3338f6").unwrap());
+        assert_eq!(ProtectionScheme::try_from(pd.protection_scheme.unwrap()).unwrap(),
+                   ProtectionScheme::from_str_name("CBCS").unwrap());
+    }
+    assert!(boxes.contains(&boxes[0]));
 }
 
 
