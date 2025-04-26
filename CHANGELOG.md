@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.11] - Unreleased
+
+- Implement `to_string` for `PsshData` objects.
+
+
 ## [0.1.10] - 2024-10-21
 
 - Updated crate dependencies. No functional changes.

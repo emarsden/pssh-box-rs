@@ -91,6 +91,64 @@ impl ToBytes for PsshData {
     }
 }
 
+impl fmt::Display for PsshData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            PsshData::Widevine(wv) => {
+                let mut items = Vec::new();
+                let mut keys = Vec::new();
+                let json = wv.to_json();
+                if let Some(alg) = json.get("algorithm") {
+                    if let Some(a) = alg.as_str() {
+                        items.push(String::from(a));
+                    }
+                }
+                if let Some(content_id) = json.get("content_id") {
+                    if let Some(cid_hex) = content_id.as_str() {
+                        if let Ok(cid_octets) = hex::decode(cid_hex) {
+                            if let Ok(cid) = String::from_utf8(cid_octets) {
+                                items.push(format!("content_id: \"{cid}\""));
+                            }
+                        }
+                    }
+                }
+                if let Some(kav) = json.get("key_id") {
+                    if let Some(ka) = kav.as_array() {
+                        for kv in ka {
+                            if let Some(k) = kv.as_str() {
+                                keys.push(String::from(k));
+                            }
+                        }
+                    }
+                }
+                if keys.len() == 1 {
+                    if let Some(key) = keys.first() {
+                        items.push(format!("key_id: {}", key));
+                    }
+                }
+                if keys.len() > 1 {
+                    items.push(format!("key_ids: {}", keys.join(", ")));
+                }
+                if let Some(jo) = json.as_object() {
+                    for (k, v) in jo.iter() {
+                        if k.ne("algorithm") && k.ne("key_id") && k.ne("content_id") {
+                            items.push(format!("{k}: {v}"));
+                        }
+                    }
+                }
+                write!(f, "WidevinePSSHData<{}>", items.join(", "))
+            },
+            PsshData::PlayReady(pr) => write!(f, "PlayReadyPSSHData<{pr:?}>"),
+            PsshData::Irdeto(pd) => write!(f, "IrdetoPSSHData<{}>", pd.xml),
+            PsshData::Marlin(pd) => write!(f, "  MarlinPSSHData<len {} octets>", pd.len()),
+            PsshData::Nagra(pd) => write!(f, "NagraPSSHData<{pd:?}>"),
+            PsshData::WisePlay(pd) => write!(f, "WisePlayPSSHData<{}>", pd.json),
+            PsshData::CommonEnc(pd) => write!(f, "CommonPSSHData<len {} octets>", pd.len()),
+            PsshData::FairPlay(pd) => write!(f, "FairPlayPSSHData<len {} octets>", pd.len()),
+        }
+    }
+}
+
 /// The identifier for a DRM system.
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, FromBytes)]
 pub struct DRMSystemId {
