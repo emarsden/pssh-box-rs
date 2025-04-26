@@ -1,4 +1,4 @@
-/// Decode PSSH initialization data located in an MP4 container
+//! Decode PSSH initialization data located in an MP4 container
 //
 //
 // Fetch an initialization segment from a DASH stream that uses ContentProtection (DRM) and display

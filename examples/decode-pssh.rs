@@ -1,8 +1,12 @@
-/// Decode a PSSH provided in Base64 or hex format on the commandline
+//! Decode a PSSH provided in Base64 or hex format on the commandline
 //
-// The utility can be used to parse a single PSSH box or multiple concatenated PSSH boxes. The input
-// can be in hex or in base64.
-
+// The utility can be used to parse a single PSSH box or multiple concatenated PSSH boxes, or Widevine or Playread PSSHData. The input
+// can be encoded in hex or in base64.
+//
+// To run this from the checked out source of the pssh-box crate:
+//
+//    cargo run --example decode-pssh -- "AAAAOnBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAABoIARIQt1vS7XqCQEOkj9mf8WoEESIENDc2Nw=="
+//
 // Alternative test using shaka-packager (via docker container) to parse a PSSH box:
 //
 //    podman run --rm docker.io/google/shaka-packager:latest pssh-box.py --from-base64 <base64>
@@ -17,7 +21,7 @@ use std::io::Cursor;
 use base64::prelude::{Engine as _, BASE64_STANDARD};
 use anyhow::{Result, Context};
 use clap::{Arg, ArgAction};
-use pssh_box::{from_base64, from_hex, pprint};
+use pssh_box::{from_base64, from_hex, pprint, PsshData};
 use pssh_box::widevine::WidevinePsshData;
 use prost::Message;
 use tracing_subscriber::EnvFilter;
@@ -79,7 +83,8 @@ fn main() -> Result<()> {
             .context("decoding base64")?;
         let pssh_data = WidevinePsshData::decode(Cursor::new(buf))
             .context("parsing Widevine PSSH data")?;
-        println!("Widevine PSSH data: {pssh_data:?}");
+        let wvpssh = PsshData::Widevine(pssh_data.clone());
+        println!("{wvpssh}");
         return Ok(());
     }
     if matches.get_flag("parse-playready-data") {
