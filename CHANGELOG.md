@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.11] - Unreleased
+## [0.1.11] - 2025-04-26
 
 - Implement `to_string` for `PsshData` objects.
 
