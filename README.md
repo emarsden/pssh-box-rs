@@ -6,7 +6,7 @@ Management (DRM) system.
 
 [![Crates.io](https://img.shields.io/crates/v/pssh-box)](https://crates.io/crates/pssh-box)
 [![Released API docs](https://docs.rs/pssh-box/badge.svg)](https://docs.rs/pssh-box/)
-[![CI](https://github.com/emarsden/pssh-box-rs/workflows/build/badge.svg)](https://github.com/emarsden/pssh-box-rs/workflows/build/badge.svg)
+[![CI](https://github.com/emarsden/pssh-box-rs/workflows/build/badge.svg)](https://github.com/emarsden/pssh-box-rs/actions/workflows/ci.yml)
 [![Dependency status](https://deps.rs/repo/github/emarsden/pssh-box-rs/status.svg)](https://deps.rs/repo/github/emarsden/pssh-box-rs)
 [![Recent crates.io downloads](https://img.shields.io/crates/dr/pssh-box?label=crates.io%20recent%20downloads)](https://img.shields.io/crates/dr/pssh-box?label=crates.io%20recent%20downloads)
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
