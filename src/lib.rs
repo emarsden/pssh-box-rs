@@ -123,7 +123,7 @@ impl fmt::Display for PsshData {
                 }
                 if keys.len() == 1 {
                     if let Some(key) = keys.first() {
-                        items.push(format!("key_id: {}", key));
+                        items.push(format!("key_id: {key}"));
                     }
                 }
                 if keys.len() > 1 {
@@ -823,7 +823,7 @@ pub fn pprint(pssh: &PsshBox) {
     println!("  SystemID: {}", pssh.system_id);
     if pssh.version == 1 {
         for key in &pssh.key_ids {
-            println!("  Key ID: {}", key);
+            println!("  Key ID: {key}");
         }
     }
     match &pssh.pssh_data {
