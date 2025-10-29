@@ -798,8 +798,8 @@ pub fn from_buffer(init_data: &[u8]) -> Result<PsshBoxVec> {
     Ok(boxes)
 }
 
-/// Locate the positions of a PsshBox in a buffer, if present. Returns an iterator over start
-/// positions for PSSH boxes in the buffer.
+/// Locate the positions of PSSH boxes in a buffer, if any are present. Returns an iterator over
+/// start positions for PSSH boxes in the buffer.
 pub fn find_iter(buffer: &[u8]) -> impl Iterator<Item = usize> + '_ {
     use bstr::ByteSlice;
 
@@ -812,6 +812,9 @@ pub fn find_iter(buffer: &[u8]) -> impl Iterator<Item = usize> + '_ {
             let mut rdr = Cursor::new(&buffer[start..]);
             let size: u32 = rdr.read_u32::<BigEndian>().unwrap();
             let end = start + size as usize;
+            if end > buffer.len() {
+                return false;
+            }
             from_bytes(&buffer[start..end]).is_ok()
         })
         .map(|offset| offset - 4)

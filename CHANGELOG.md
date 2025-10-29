@@ -1,5 +1,11 @@
 # Changelog
 
+
+## [0.1.12] - Unreleased
+
+- Fix potential array out of bounds exception in `find_iter`. Issue reported by @lvzhenbo.
+
+
 ## [0.1.11] - 2025-04-26
 
 - Implement `to_string` for `PsshData` objects.
