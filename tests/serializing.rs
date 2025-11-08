@@ -1,4 +1,4 @@
-/// Tests for the serialization functionality
+//! Tests for the serialization functionality
 
 use test_log::test;
 use pssh_box::{from_base64, DRMKeyId, DRMSystemId};
