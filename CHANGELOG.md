@@ -5,6 +5,15 @@
 
 - Fix potential array out of bounds exception in `find_iter`. Issue reported by @lvzhenbo.
 
+- New function `find_boxes_buffer` which searches for PSSH boxes in a `[u8]` slice and returns an
+  iterator over the boxes.
+
+- New function `find_boxes_stream` which lazily searches for PSSH boxes in a stream of octets (an
+  object that implements `Read`, such as a file or a network stream). Each item returned by the
+  iterator is either a `PsshBox` or an `io::Error`. The input is read in streaming mode (chunk by
+  chunk), without storing the entire contents in memory. The search is undertaken lazily: successive
+  chunks of octets are read only as needed for the iterator to provide the next `PsshBox`.
+
 
 ## [0.1.11] - 2025-04-26
 

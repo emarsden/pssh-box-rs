@@ -36,7 +36,7 @@ pub mod nagra;
 pub mod wiseplay;
 
 use std::fmt;
-use std::io::{Cursor, Read, Write};
+use std::io::{self, Cursor, Read, Write};
 use hex_literal::hex;
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use zerocopy::FromBytes;
@@ -205,6 +205,9 @@ impl fmt::Display for DRMSystemId {
             "Common"
         } else if self.id == hex!("69f908af481646ea910ccd5dcccb0a3a") {
             "CENC"
+        } else if self.id == hex!("6770616363656e6364726d746f6f6c31") {
+            // See https://github.com/gpac/testsuite/blob/b1c1f23079431221b582f3c7674706c6b6044cf2/media/encryption/tpl_roll.xml#L6
+            "GPAC"
         } else if self.id == hex!("edef8ba979d64acea3c827dcd51d21ed") {
             "Widevine"
         } else if self.id == hex!("9a04f07998404286ab92e65be0885f95") {
@@ -808,6 +811,9 @@ pub fn find_iter(buffer: &[u8]) -> impl Iterator<Item = usize> + '_ {
             if offset+24 > buffer.len() {
                 return false;
             }
+            if offset+4 < 8 {
+                return false;
+            }
             let start = offset - 4;
             let mut rdr = Cursor::new(&buffer[start..]);
             let size: u32 = rdr.read_u32::<BigEndian>().unwrap();
@@ -819,6 +825,132 @@ pub fn find_iter(buffer: &[u8]) -> impl Iterator<Item = usize> + '_ {
         })
         .map(|offset| offset - 4)
 }
+
+
+/// Extract PSSH boxes in a buffer, if any are present. Returns an iterator over PSSH boxes in the
+/// buffer.
+pub fn find_boxes_buffer(buffer: &[u8]) -> impl Iterator<Item = PsshBox> + '_ {
+    use bstr::ByteSlice;
+
+    let mut boxes = Vec::new();
+    for offset in buffer.find_iter(b"pssh") {
+        if offset+24 > buffer.len() || offset+4 < 8 {
+            break;
+        }
+        let start = offset - 4;
+        let mut rdr = Cursor::new(&buffer[start..]);
+        let size: u32 = rdr.read_u32::<BigEndian>().unwrap();
+        let end = start + size as usize;
+        if end > buffer.len() {
+            break;
+        }
+        if let Ok(pbv) = from_bytes(&buffer[start..end]) {
+            for pb in pbv {
+                boxes.push(pb);
+            }
+        }
+    }
+    boxes.into_iter()
+}
+
+
+/// Extract PSSH boxes from a stream of octets (an object that implements `Read`), if any are
+/// present. Returns an iterator whose elements are a `PsshBox` or an `io::Error`. The input is read
+/// in streaming mode (chunk by chunk), without storing the entire contents in memory. The search is
+/// undertaken lazily: successive chunks of octets are read only as needed for the iterator to
+/// provide the next item.
+pub fn find_boxes_stream<R>(reader: R) -> impl Iterator<Item = Result<PsshBox, io::Error>>
+where
+    R: Read,
+{
+    PsshBoxIterator::new(reader)
+}
+
+struct PsshBoxIterator<R> {
+    reader: R,
+    buffer: Vec<u8>,
+    buffer_pos: usize,
+    pending_boxes : Vec<PsshBox>,
+}
+
+impl<R> PsshBoxIterator<R> {
+    fn new(reader: R) -> Self {
+        PsshBoxIterator {
+            reader,
+            buffer: Vec::new(),
+            buffer_pos: 0,
+            pending_boxes: Vec::new(),
+        }
+    }
+}
+
+impl<R> Iterator for PsshBoxIterator<R>
+where
+    R: Read,
+{
+    type Item = Result<PsshBox, io::Error>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        use bstr::ByteSlice;
+
+        if let Some(bx) = self.pending_boxes.pop() {
+            return Some(Ok(bx));
+        }
+        let mut buf = [0; 1024 * 1024];
+        loop {
+            if self.buffer_pos > 0 {
+                self.buffer = self.buffer.split_off(self.buffer_pos);
+            }
+            let bytes_read = match self.reader.read(&mut buf) {
+                Ok(n) => n,
+                Err(e) => return Some(Err(e)),
+            };
+            if self.buffer_pos == 0 && bytes_read == 0 {
+                return None;
+            }
+            self.buffer.extend_from_slice(&buf[..bytes_read]);
+            self.buffer_pos = 0;
+            if let Some(offset) = self.buffer.find(b"pssh") {
+                trace!("Found pssh cookie at offset {offset}");
+                if offset + 24 > self.buffer.len() {
+                    self.buffer_pos = offset + 4;
+                    continue;
+                }
+                if offset < 4 {
+                    self.buffer_pos = 4;
+                    continue;
+                }
+                let start = offset - 4;
+                let buffer_len = self.buffer.len();
+                let mut rdr = Cursor::new(&self.buffer[start..buffer_len]);
+                let size: u32 = rdr.read_u32::<BigEndian>().unwrap();
+                let end = start + size as usize;
+                if end > self.buffer.len() {
+                    self.buffer_pos = offset + 1;
+                    continue;
+                }
+                if let Ok(pbv) = from_bytes(&self.buffer[start..end]) {
+                    self.buffer_pos = end;
+                    for pb in pbv {
+                        self.pending_boxes.push(pb);
+                    }
+                    if let Some(bx) = self.pending_boxes.pop() {
+                        return Some(Ok(bx));
+                    }
+                } else {
+                    self.buffer_pos = offset + 4;
+                }
+            } else {
+                // Try the last bit of the buffer in the next loop iteration, in case the b"pssh"
+                // cookie is at the buffer boundary.
+                if self.buffer.len() >= 3 {
+                    self.buffer_pos = self.buffer.len() - 3;
+                }
+            }
+        }
+    }
+}
+
 
 /// Multiline pretty printing of a PsshBox (verbose alternative to `to_string()` method).
 pub fn pprint(pssh: &PsshBox) {
