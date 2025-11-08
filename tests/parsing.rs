@@ -1,8 +1,8 @@
-/// Tests for PSSH box parsing
+//! Tests for PSSH box parsing
 
 use base64::prelude::{Engine as _, BASE64_STANDARD};
 use test_log::test;
-use pssh_box::{from_base64, from_hex, from_bytes, from_buffer, find_iter, pprint};
+use pssh_box::{from_base64, from_hex, pprint};
 use pssh_box::{PsshData, DRMKeyId};
 use pssh_box::{
     WIDEVINE_SYSTEM_ID,
@@ -92,7 +92,7 @@ fn test_parsing_widevine_v0() {
         .unwrap();
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
-    pprint(&pssh);
+    pprint(pssh);
     assert_eq!(pssh.system_id, WIDEVINE_SYSTEM_ID);
     assert_eq!(pssh.version, 0);
     if let PsshData::Widevine(ref pd) = pssh.pssh_data {
@@ -248,7 +248,7 @@ fn test_parsing_playready_v0() {
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
     println!("PLAYREADY> {pssh:?}");
-    pprint(&pssh);
+    pprint(pssh);
     assert_eq!(pssh.system_id, PLAYREADY_SYSTEM_ID);
     if let PsshData::PlayReady(ref pd) = pssh.pssh_data {
         let wrmh = &pd.record[0].record_value;
@@ -359,7 +359,7 @@ fn test_parsing_nagra() {
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
     println!("NAGRA> {pssh:?}");
-    pprint(&pssh);
+    pprint(pssh);
     assert_eq!(pssh.system_id, NAGRA_SYSTEM_ID);
     if let PsshData::Nagra(ref pd) = pssh.pssh_data {
         assert_eq!(pd.content_id, "Gone in the wind");
@@ -450,7 +450,7 @@ fn test_parsing_marlin() {
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
     println!("MARLIN> {pssh:?}");
-    pprint(&pssh);
+    pprint(pssh);
     assert_eq!(pssh.system_id, MARLIN_SYSTEM_ID);
     assert!(boxes[0] == boxes[0]);
     assert!(boxes.contains(&boxes[0]));
@@ -464,7 +464,7 @@ fn test_parsing_irdeto() {
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
     println!("Irdeto> {pssh:?}");
-    pprint(&pssh);
+    pprint(pssh);
     assert_eq!(pssh.system_id, IRDETO_SYSTEM_ID);
     if let PsshData::Irdeto(ref pd) = pssh.pssh_data {
         assert!(pd.xml.contains("<CCARMHEADER"));
@@ -482,7 +482,7 @@ fn test_parsing_wiseplay() {
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
     println!("WisePlay> {pssh:?}");
-    pprint(&pssh);
+    pprint(pssh);
     assert_eq!(pssh.system_id, WISEPLAY_SYSTEM_ID);
     if let PsshData::WisePlay(ref pd) = pssh.pssh_data {
         assert!(pd.json["enschema"].eq("cenc"));
@@ -525,7 +525,7 @@ fn test_parsing_commonenc_v1() {
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
     println!("COMMON> {pssh:?}");
-    pprint(&pssh);
+    pprint(pssh);
     assert_eq!(pssh.version, 1);
     assert_eq!(pssh.system_id, COMMON_SYSTEM_ID);
     assert_eq!(pssh.key_ids[0], DRMKeyId::try_from("0922fdf56afa41a088615d1bc84cac60").unwrap());
@@ -537,7 +537,7 @@ fn test_parsing_commonenc_v1() {
     let pssh = &boxes[0];
     assert_eq!(pssh.version, 1);
     println!("COMMON> {pssh:?}");
-    pprint(&pssh);
+    pprint(pssh);
     assert_eq!(pssh.system_id, COMMON_SYSTEM_ID);
     assert_eq!(pssh.key_ids[0], DRMKeyId::try_from("43215678123412341234123412341234").unwrap());
     assert!(boxes.contains(&boxes[0]));
@@ -547,7 +547,7 @@ fn test_parsing_commonenc_v1() {
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
     println!("COMMON> {pssh:?}");
-    pprint(&pssh);
+    pprint(pssh);
     assert_eq!(pssh.system_id, COMMON_SYSTEM_ID);
     assert_eq!(pssh.key_ids[0], DRMKeyId::try_from("0622292dbbc143a49ee4b628c86a6d6e").unwrap());
     assert!(boxes.contains(&boxes[0]));
@@ -557,7 +557,7 @@ fn test_parsing_commonenc_v1() {
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
     println!("COMMON> {pssh:?}");
-    pprint(&pssh);
+    pprint(pssh);
     assert_eq!(pssh.system_id, COMMON_SYSTEM_ID);
     assert_eq!(pssh.key_ids[0], DRMKeyId::try_from("38d581ae63c54cdcb5d36a155dcbde1c").unwrap());
 
@@ -591,7 +591,7 @@ fn test_parsing_fairplay() {
     assert_eq!(boxes.len(), 1);
     let pssh = &boxes[0];
     println!("FairPlay> {pssh:?}");
-    pprint(&pssh);
+    pprint(pssh);
     assert_eq!(pssh.version, 0);
     assert_eq!(pssh.system_id, FAIRPLAYNFLX_SYSTEM_ID);
     assert!(boxes.contains(&boxes[0]));
@@ -650,45 +650,6 @@ fn test_parsing_concatenated_erroneous() {
 #[test]
 fn test_parsing_erroneous() {
     assert!(from_base64("bXlfcHNzaA==").is_err());
-}
-
-
-#[test]
-fn test_find_iter() {
-    let init = reqwest::blocking::get("https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/video/180_250000/cenc_dash/init.mp4")
-        .unwrap()
-        .bytes()
-        .unwrap();
-    let positions: Vec<usize> = find_iter(&init).collect();
-    for pos in positions {
-        let boxes = from_buffer(&init[pos..]).unwrap();
-        println!("Find> at octet {pos} found pssh {boxes:?}");
-    }
-
-    let buf = BASE64_STANDARD.decode("AAAAQHBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAACAiGFlPVVRVQkU6NTM5ZjEyZjRhM2IzMTczYkjj3JWbBgAAAvRwc3NoAAAAAJoE8HmYQEKGq5LmW+CIX5UAAALU1AIAAAEAAQDKAjwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4AdwB3AFQASwA0AFMAbwBkAEYAVgArAFgAMQAwAHYAYQBjAFMAQgBFAEcAUQA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgA1AGsASgArADcANgBDAHEAYQB0AHMAPQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APABMAEEAXwBVAFIATAA+AGgAdAB0AHAAcwA6AC8ALwB3AHcAdwAuAHkAbwB1AHQAdQBiAGUALgBjAG8AbQAvAGEAcABpAC8AZAByAG0ALwBwAGwAYQB5AHIAZQBhAGQAeQA/AHMAbwB1AHIAYwBlAD0AWQBPAFUAVABVAEIARQAmAGEAbQBwADsAdgBpAGQAZQBvAF8AaQBkAD0ANQAzADkAZgAxADIAZgA0AGEAMwBiADMAMQA3ADMAYgA8AC8ATABBAF8AVQBSAEwAPgA8AC8ARABBAFQAQQA+ADwALwBXAFIATQBIAEUAQQBEAEUAUgA+AA==")
-        .unwrap();
-    let positions: Vec<usize> = find_iter(&buf).collect();
-    println!("Find> positions {positions:?}");
-    assert_eq!(positions.len(), 2);
-    let boxes = from_bytes(&buf).unwrap();
-    let pssh = &boxes[0];
-    assert_eq!(pssh.system_id, WIDEVINE_SYSTEM_ID);
-    println!("PLAYREADY-v1(1)> {pssh:?}");
-    assert_eq!(pssh.flags, 0);
-    if let PsshData::Widevine(ref pd) = pssh.pssh_data {
-        assert_eq!(pd.content_id, Some(hex::decode("594f55545542453a35333966313266346133623331373362").unwrap()));
-    }
-    let pssh = &boxes[1];
-    assert_eq!(pssh.system_id, PLAYREADY_SYSTEM_ID);
-    println!("PLAYREADY-v1(2)> {pssh:?}");
-    assert_eq!(pssh.flags, 0);
-    if let PsshData::PlayReady(ref pd) = pssh.pssh_data {
-        let wrmh = &pd.record[0].record_value;
-        assert_eq!(wrmh.data.checksum, Some(BASE64_STANDARD.decode("5kJ+76Cqats=").unwrap()));
-        assert!(wrmh.data.la_url.as_ref().is_some_and(|s| s.contains("youtube.com")));
-    }
-    assert!(boxes.contains(&boxes[0]));
-    assert!(boxes.contains(&boxes[1]));
 }
 
 
