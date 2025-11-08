@@ -46,7 +46,10 @@ This crate provides the following functionality:
 - **parse PSSH boxes** from binary buffers (as found in an MP4 fragment), or from a base64-encoded
   string (as found in a `<cenc:pssh>` element in an MPD manifest), or from a hex-encoded string.
    
-- **scan** a binary buffer for the location of a PSSH box, using the function `find_iter`.
+- **scan** a binary buffer for the location of PSSH boxes, using the function `find_iter`.
+
+- **find** PSSH boxes in a binary slice (function `find_boxes_buffer`) or in a stream of octets
+  (function `find_boxes_stream`).
 
 - pretty print a PSSH, using function `pprint`.
 
