@@ -1,7 +1,7 @@
 # Changelog
 
 
-## [0.1.12] - Unreleased
+## [0.2.0] - 2025-11-08
 
 - Fix potential array out of bounds exception in `find_iter`. Issue reported by @lvzhenbo.
 
