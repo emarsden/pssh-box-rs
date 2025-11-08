@@ -1,4 +1,4 @@
-/// generate.rs -- tests for generating PSSH boxes
+//! generate.rs -- tests for generating PSSH boxes
 
 
 use base64::prelude::{Engine as _, BASE64_STANDARD};
