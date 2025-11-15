@@ -10,7 +10,6 @@ use pssh_box::{
     COMMON_SYSTEM_ID,
     IRDETO_SYSTEM_ID,
     WISEPLAY_SYSTEM_ID,
-    MARLIN_SYSTEM_ID,
     NAGRA_SYSTEM_ID,
     FAIRPLAYNFLX_SYSTEM_ID};
 
@@ -323,6 +322,19 @@ fn test_parsing_playready_v0() {
         assert!(wrmh.data.custom_attributes.as_ref().is_some_and(|ca| ca.contains("<CID>PzW3zYLq1Embif4IcIKnNA==</CID>")));
         assert!(wrmh.data.custom_attributes.as_ref().is_some_and(|ca| ca.contains("<DRMTYPE>smooth</DRMTYPE>")));
     }
+
+    let boxes = from_base64("AAACenBzc2gAAAAAmgTweZhAQoarkuZb4IhflQAAAlpaAgAAAQABAFACPABXAFIATQBIAEUAQQBEAEUAUgAgAHgAbQBsAG4AcwA9ACIAaAB0AHQAcAA6AC8ALwBzAGMAaABlAG0AYQBzAC4AbQBpAGMAcgBvAHMAbwBmAHQALgBjAG8AbQAvAEQAUgBNAC8AMgAwADAANwAvADAAMwAvAFAAbABhAHkAUgBlAGEAZAB5AEgAZQBhAGQAZQByACIAIAB2AGUAcgBzAGkAbwBuAD0AIgA0AC4AMAAuADAALgAwACIAPgA8AEQAQQBUAEEAPgA8AFAAUgBPAFQARQBDAFQASQBOAEYATwA+ADwASwBFAFkATABFAE4APgAxADYAPAAvAEsARQBZAEwARQBOAD4APABBAEwARwBJAEQAPgBBAEUAUwBDAFQAUgA8AC8AQQBMAEcASQBEAD4APAAvAFAAUgBPAFQARQBDAFQASQBOAEYATwA+ADwASwBJAEQAPgBBAHYAQQBzAFIASgB0AEkAZgBZAFkAcgA5AEMAcABaAHEAUQBIAGsAdQB3AD0APQA8AC8ASwBJAEQAPgA8AEwAQQBfAFUAUgBMAD4AaAB0AHQAcAA6AC8ALwBwAHIALgBkAGUAdgAuAGUAeABwAHIAZQBzAHMAcABsAGEAeQAuAGMAbwBtAC8AcABsAGEAeQByAGUAYQBkAHkALwBSAGkAZwBoAHQAcwBNAGEAbgBhAGcAZQByAC4AYQBzAG0AeAA8AC8ATABBAF8AVQBSAEwAPgA8AC8ARABBAFQAQQA+ADwALwBXAFIATQBIAEUAQQBEAEUAUgA+AA==")
+        .unwrap();
+    assert_eq!(boxes.len(), 1);
+    let pssh = &boxes[0];
+    assert_eq!(pssh.version, 0);
+    assert_eq!(pssh.system_id, PLAYREADY_SYSTEM_ID);
+    assert!(boxes.contains(&boxes[0]));
+    if let PsshData::PlayReady(ref pd) = pssh.pssh_data {
+        let wrmh = &pd.record[0].record_value;
+        assert!(wrmh.data.la_url.as_ref().is_some_and(|u| u.contains("dev.expressplay.com")));
+    }
+
 }
 
 
@@ -440,20 +452,6 @@ fn test_parsing_nagra() {
         assert_eq!(pd.content_id, "CUP011");
         assert_eq!(pd.key_id, "9b70c1cf-a001-4bac-814e-396955ef4c8f");
     }
-}
-
-
-#[test]
-fn test_parsing_marlin() {
-    let boxes = from_base64("AAAAKHBzc2gAAAAAXmKa9TjaQGOJd5f/vZkC1AAAAAgAAAAIbWFybA==")
-        .unwrap();
-    assert_eq!(boxes.len(), 1);
-    let pssh = &boxes[0];
-    println!("MARLIN> {pssh:?}");
-    pprint(pssh);
-    assert_eq!(pssh.system_id, MARLIN_SYSTEM_ID);
-    assert!(boxes[0] == boxes[0]);
-    assert!(boxes.contains(&boxes[0]));
 }
 
 
@@ -581,6 +579,7 @@ fn test_parsing_commonenc_v1() {
             .find(|k| **k == wanted)
             .is_some());
 }
+
 
 // The FairPlay DRM system has very little public information available nor sample PSSH boxes. This
 // is a sample PSSH from the FairPlay PSSH system as used by Netflix.

@@ -6,6 +6,10 @@
 - Function `find_boxes_stream`: replace the large stack allocation of the read buffer by heap
   allocation of a smaller buffer. Fix provided by @lvzhenbo.
 
+- Implement basic pretty-printing support for MobiDRM PSSH boxes.
+
+- Fix the System ID used for the Marlin DRM system. The value previously used was the urn:uuid code
+  for the Marlin DRM system, which (unlike most DRM systems) is different from the System ID.
 
 
 ## [0.2.0] - 2025-11-08

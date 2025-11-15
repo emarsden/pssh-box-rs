@@ -206,8 +206,6 @@ impl fmt::Display for DRMSystemId {
         // See list at https://dashif.org/identifiers/content_protection/
         let family = if self.id == hex!("1077efecc0b24d02ace33c1e52e2fb4b") {
             "Common"
-        } else if self.id == hex!("69f908af481646ea910ccd5dcccb0a3a") {
-            "CENC"
         } else if self.id == hex!("6770616363656e6364726d746f6f6c31") {
             // See https://github.com/gpac/testsuite/blob/b1c1f23079431221b582f3c7674706c6b6044cf2/media/encryption/tpl_roll.xml#L6
             "GPAC"
@@ -238,6 +236,12 @@ impl fmt::Display for DRMSystemId {
         } else if self.id == hex!("80a6be7e14484c379e70d5aebe04c8d2") {
             "Irdeto"
         } else if self.id == hex!("5e629af538da4063897797ffbd9902d4") {
+            // In fact this is the urn:uuid:<uuid> code used for Marlin, which is not the same as
+            // the Marlin SystemID (whereas for most other DRM systems, the urn:uuid code is the
+            // same as the system ID). However, it seems that there is some confusion in some PSSH
+            // boxes used in practice, so we recognize this system ID as being Marlin.
+            "Marlin"
+        } else if self.id == hex!("69f908af481646ea910ccd5dcccb0a3a") {
             "Marlin"
         } else if self.id == hex!("adb41c242dbf4a6d958b4457c0d27b95") {
             "Nagra"
@@ -268,12 +272,11 @@ impl fmt::Debug for DRMSystemId {
 }
 
 pub const COMMON_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("1077efecc0b24d02ace33c1e52e2fb4b") };
-pub const CENC_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("69f908af481646ea910ccd5dcccb0a3a") };
 pub const WIDEVINE_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("edef8ba979d64acea3c827dcd51d21ed") };
 pub const PLAYREADY_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("9a04f07998404286ab92e65be0885f95") };
 pub const FAIRPLAYNFLX_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("29701fe43cc74a348c5bae90c7439a47") };
 pub const IRDETO_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("80a6be7e14484c379e70d5aebe04c8d2") };
-pub const MARLIN_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("5e629af538da4063897797ffbd9902d4") };
+pub const MARLIN_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("69f908af481646ea910ccd5dcccb0a3a") };
 pub const NAGRA_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("adb41c242dbf4a6d958b4457c0d27b95") };
 pub const WISEPLAY_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("3d5e6d359b9a41e8b843dd3c6e72c42c") };
 pub const MOBI_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("6a99532d869f59229a91113ab7b1e2f3") };
