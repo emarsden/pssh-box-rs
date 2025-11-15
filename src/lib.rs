@@ -887,6 +887,7 @@ struct PsshBoxIterator<R> {
     buffer: Vec<u8>,
     buffer_pos: usize,
     pending_boxes : Vec<PsshBox>,
+    read_buffer: Vec<u8>,
 }
 
 impl<R> PsshBoxIterator<R> {
@@ -896,6 +897,7 @@ impl<R> PsshBoxIterator<R> {
             buffer: Vec::new(),
             buffer_pos: 0,
             pending_boxes: Vec::new(),
+            read_buffer: vec![0; 8 * 1024],
         }
     }
 }
@@ -912,19 +914,18 @@ where
         if let Some(bx) = self.pending_boxes.pop() {
             return Some(Ok(bx));
         }
-        let mut buf = [0; 1024 * 1024];
         loop {
             if self.buffer_pos > 0 {
                 self.buffer = self.buffer.split_off(self.buffer_pos);
             }
-            let bytes_read = match self.reader.read(&mut buf) {
+            let bytes_read = match self.reader.read(&mut self.read_buffer) {
                 Ok(n) => n,
                 Err(e) => return Some(Err(e)),
             };
             if self.buffer_pos == 0 && bytes_read == 0 {
                 return None;
             }
-            self.buffer.extend_from_slice(&buf[..bytes_read]);
+            self.buffer.extend_from_slice(&self.read_buffer[..bytes_read]);
             self.buffer_pos = 0;
             if let Some(offset) = self.buffer.find(b"pssh") {
                 trace!("Found pssh cookie at offset {offset}");

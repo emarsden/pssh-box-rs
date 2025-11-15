@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [0.2.1] - Unreleased
+
+- Function `find_boxes_stream`: replace the large stack allocation of the read buffer by heap
+  allocation of a smaller buffer. Fix provided by @lvzhenbo.
+
+
+
 ## [0.2.0] - 2025-11-08
 
 - Fix potential array out of bounds exception in `find_iter`. Issue reported by @lvzhenbo.
