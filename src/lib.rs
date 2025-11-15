@@ -74,6 +74,7 @@ pub enum PsshData {
     Marlin(Vec<u8>),
     CommonEnc(Vec<u8>),
     FairPlay(Vec<u8>),
+    Mobi(Vec<u8>),
 }
 
 impl ToBytes for PsshData {
@@ -87,6 +88,7 @@ impl ToBytes for PsshData {
             PsshData::Marlin(m) => m.to_vec(),
             PsshData::CommonEnc(c) => c.to_vec(),
             PsshData::FairPlay(c) => c.to_vec(),
+            PsshData::Mobi(c) => c.to_vec(),
         }
     }
 }
@@ -145,6 +147,7 @@ impl fmt::Display for PsshData {
             PsshData::WisePlay(pd) => write!(f, "WisePlayPSSHData<{}>", pd.json),
             PsshData::CommonEnc(pd) => write!(f, "CommonPSSHData<len {} octets>", pd.len()),
             PsshData::FairPlay(pd) => write!(f, "FairPlayPSSHData<len {} octets>", pd.len()),
+            PsshData::Mobi(pd) => write!(f, "MobiPSSHData<len {} octets>", pd.len()),
         }
     }
 }
@@ -246,6 +249,8 @@ impl fmt::Display for DRMSystemId {
             "WisePlay-ChinaDRM"
         } else if self.id == hex!("793b79569f944946a94223e7ef7e44b4") {
             "VisionCrypt"
+        } else if self.id == hex!("6a99532d869f59229a91113ab7b1e2f3") {
+            "MobiDRM"
         } else {
             "Unknown"
         };
@@ -271,6 +276,7 @@ pub const IRDETO_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("80a6be7e14484c
 pub const MARLIN_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("5e629af538da4063897797ffbd9902d4") };
 pub const NAGRA_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("adb41c242dbf4a6d958b4457c0d27b95") };
 pub const WISEPLAY_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("3d5e6d359b9a41e8b843dd3c6e72c42c") };
+pub const MOBI_SYSTEM_ID: DRMSystemId = DRMSystemId { id: hex!("6a99532d869f59229a91113ab7b1e2f3") };
 
 /// The Content Key or default_KID.
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, FromBytes)]
@@ -459,6 +465,7 @@ impl fmt::Display for PsshBox {
             PsshData::WisePlay(pd) => write!(f, "WisePlayPSSH<{key_str}{}>", pd.json),
             PsshData::CommonEnc(pd) => write!(f, "CommonPSSH<{key_str}pssh data len {} octets>", pd.len()),
             PsshData::FairPlay(pd) => write!(f, "FairPlayPSSH<{key_str}pssh data len {} octets>", pd.len()),
+            PsshData::Mobi(pd) => write!(f, "MobiPSSH<{key_str}pssh data len {} octets>", pd.len()),
         }
     }
 }
@@ -760,6 +767,15 @@ fn read_pssh_box(rdr: &mut Cursor<&[u8]>) -> Result<PsshBox> {
                 pssh_data: PsshData::FairPlay(pssh_data),
             })
         },
+        MOBI_SYSTEM_ID => {
+            Ok(PsshBox {
+                version,
+                flags: version_and_flags & 0xF,
+                system_id,
+                key_ids,
+                pssh_data: PsshData::Mobi(pssh_data),
+            })
+        },
         _ => Err(anyhow!("can't parse this system_id type: {:?}", system_id)),
     }
 }
@@ -991,6 +1007,15 @@ pub fn pprint(pssh: &PsshBox) {
         },
         PsshData::FairPlay(pd) => {
             println!("  FairPlay PSSH data ({} octets)", pd.len());
+            if !pd.is_empty() {
+                println!("== Hexdump of pssh data ==");
+                let mut hxbuf = Vec::new();
+                hxdmp::hexdump(pd, &mut hxbuf).unwrap();
+                println!("{}", String::from_utf8_lossy(&hxbuf));
+            }
+        },
+        PsshData::Mobi(pd) => {
+            println!("  MobiDRM PSSH data ({} octets)", pd.len());
             if !pd.is_empty() {
                 println!("== Hexdump of pssh data ==");
                 let mut hxbuf = Vec::new();
