@@ -327,3 +327,34 @@ fn test_find_boxes_streaming() {
         .collect();
     assert_eq!(boxes2.len(), 0);
 }
+
+
+#[test]
+fn test_no_stack_overflow_with_large_input() {
+    // Create a large buffer to test that we don't get stack overflow
+    let mut data = Vec::new();
+    let pssh_bytes = BASE64_STANDARD.decode("AAAAQHBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAACAiGFlPVVRVQkU6NTM5ZjEyZjRhM2IzMTczYkjj3JWbBg==").unwrap();
+    data.extend_from_slice(&pssh_bytes);
+
+    // Add 5MB of zeros to force multiple iterations through the read buffer
+    data.extend_from_slice(&vec![0u8; 5 * 1024 * 1024]);
+    let stream = Cursor::new(data);
+
+    // This should complete without stack overflow
+    let boxes: Vec<_> = find_boxes_stream(stream)
+        .collect::<Vec<_>>();
+    assert!(boxes.len() > 0, "Should find at least one PSSH box");
+}
+
+#[test]
+fn test_multiple_iterations_no_stack_overflow() {
+    // Test that we can process multiple MB of data without stack overflow
+    let mut data = Vec::new();
+
+    // Create 10MB of data with no PSSH boxes to force many iterations
+    data.extend_from_slice(&vec![0xFFu8; 10 * 1024 * 1024]);
+    let stream = Cursor::new(data);
+    let boxes: Vec<_> = find_boxes_stream(stream)
+        .collect::<Vec<_>>();
+    assert_eq!(boxes.len(), 0, "Should not find any PSSH boxes in random data");
+}
