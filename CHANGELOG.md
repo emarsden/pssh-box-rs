@@ -1,7 +1,7 @@
 # Changelog
 
 
-## [0.2.1] - Unreleased
+## [0.2.1] - 2025-11-15
 
 - Function `find_boxes_stream`: replace the large stack allocation of the read buffer by heap
   allocation of a smaller buffer. Fix provided by @lvzhenbo.
