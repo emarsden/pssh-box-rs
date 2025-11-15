@@ -7,7 +7,7 @@ use base64::prelude::{Engine as _, BASE64_STANDARD};
 use test_log::test;
 use pssh_box::{from_bytes, from_buffer, find_iter, find_boxes_buffer, find_boxes_stream, pprint};
 use pssh_box::{PsshBox, PsshData};
-use pssh_box::{WIDEVINE_SYSTEM_ID, PLAYREADY_SYSTEM_ID};
+use pssh_box::{WIDEVINE_SYSTEM_ID, PLAYREADY_SYSTEM_ID, COMMON_SYSTEM_ID};
 
 
 #[test]
@@ -148,11 +148,19 @@ fn test_find_boxes_stream() {
         .unwrap()
         .bytes()
         .unwrap();
-    let stream = Cursor::new(init.clone());
-    let boxes: Vec<PsshBox> = find_boxes_stream(stream)
+    let boxes: Vec<PsshBox> = find_boxes_stream(Cursor::new(init.clone()))
         .map(|bx| bx.unwrap())
         .collect();
     assert!(boxes.len() == 1);
+
+    let init = reqwest::blocking::get("https://cdn.class101.net/videos/447d9e6d-3dae-4d3b-b7e1-c1a3f541168e/cmaf/video/avc1/1/init.mp4")
+        .unwrap()
+        .bytes()
+        .unwrap();
+    let boxes: Vec<PsshBox> = find_boxes_stream(Cursor::new(init.clone()))
+        .map(|bx| bx.unwrap())
+        .collect();
+    assert!(boxes.len() == 3);
 
 
     // https://mpeggroup.github.io/FileFormatConformance/files/published/isobmff/18_pssh_v2.mp4
@@ -245,8 +253,7 @@ fn test_find_boxes_stream_large() {
         .unwrap()
         .bytes()
         .unwrap();
-    let stream = Cursor::new(init.clone());
-    let boxes: Vec<PsshBox> = find_boxes_stream(stream)
+    let boxes: Vec<PsshBox> = find_boxes_stream(Cursor::new(init.clone()))
         .map(|bx| bx.unwrap())
         .collect();
     assert!(boxes.len() == 18);
@@ -255,11 +262,22 @@ fn test_find_boxes_stream_large() {
         .unwrap()
         .bytes()
         .unwrap();
-    let stream = Cursor::new(init.clone());
-    let boxes: Vec<PsshBox> = find_boxes_stream(stream)
+    let boxes: Vec<PsshBox> = find_boxes_stream(Cursor::new(init.clone()))
         .map(|bx| bx.unwrap())
         .collect();
     assert!(boxes.len() == 2);
+
+    let init = reqwest::blocking::get("https://github.com/chromium/chromium/raw/refs/heads/main/media/test/data/bear-320x240-v-vp9_profile2_subsample_cenc-v.mp4")
+                                                .unwrap()
+        .bytes()
+        .unwrap();
+    let boxes: Vec<PsshBox> = find_boxes_stream(Cursor::new(init.clone()))
+        .map(|bx| bx.unwrap())
+        .collect();
+    assert!(boxes.len() == 2);
+    assert_eq!(boxes[0].system_id, COMMON_SYSTEM_ID);
+    assert_eq!(boxes[1].system_id, WIDEVINE_SYSTEM_ID);
+
 }
 
 
