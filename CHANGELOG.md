@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.2] - 2026-01-25
+
+- Updated crate dependencies. No functional changes.
+
 
 ## [0.2.1] - 2025-11-15
 
