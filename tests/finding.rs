@@ -12,7 +12,7 @@ use pssh_box::{WIDEVINE_SYSTEM_ID, PLAYREADY_SYSTEM_ID, COMMON_SYSTEM_ID};
 
 #[test]
 fn test_find_iter() {
-    let init = reqwest::blocking::get("https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/video/180_250000/cenc_dash/init.mp4")
+    let init = reqwest::blocking::get("https://refapp.hbbtv.org/videos/agent327_h264_v8/cenc/a1-2/i_mlcenc.mp4")
         .unwrap()
         .bytes()
         .unwrap();
@@ -52,7 +52,7 @@ fn test_find_iter() {
 
 #[test]
 fn test_find_boxes_buffer() {
-    let init = reqwest::blocking::get("https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/video/180_250000/cenc_dash/init.mp4")
+    let init = reqwest::blocking::get("https://refapp.hbbtv.org/videos/agent327_h264_v8/cenc/a1-2/i_mlcenc.mp4")
         .unwrap()
         .bytes()
         .unwrap();
@@ -117,7 +117,7 @@ fn test_find_boxes_buffer() {
 
 #[test]
 fn test_find_boxes_stream() {
-    let init = reqwest::blocking::get("https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/video/180_250000/cenc_dash/init.mp4")
+    let init = reqwest::blocking::get("https://refapp.hbbtv.org/videos/agent327_h264_v8/cenc/a1-2/i_mlcenc.mp4")
         .unwrap()
         .bytes()
         .unwrap();
@@ -227,7 +227,7 @@ fn test_find_boxes_stream_large() {
     assert!(boxes.len() == 1);
     assert_eq!(boxes[0].system_id, PLAYREADY_SYSTEM_ID);
 
-    let init = reqwest::blocking::get("https://cdn.bitmovin.com/content/assets/art-of-motion_drm/video/1080_4800000/cenc_dash/init.mp4")
+    let init = reqwest::blocking::get("https://refapp.hbbtv.org/videos/agent327_h264_v8/cenc/a1-2/i_mlcenc.mp4")
         .unwrap()
         .bytes()
         .unwrap();
