@@ -470,6 +470,7 @@ fn test_parsing_irdeto() {
         assert!(pd.xml.contains("CCIS_URL"));
     }
     assert!(boxes.contains(&boxes[0]));
+
 }
 
 // DRM system from Huawei, which shares the same systemid as ChinaDRM.
@@ -594,6 +595,15 @@ fn test_parsing_fairplay() {
     assert_eq!(pssh.version, 0);
     assert_eq!(pssh.system_id, FAIRPLAYNFLX_SYSTEM_ID);
     assert!(boxes.contains(&boxes[0]));
+
+    let boxes = from_base64("AAAAIHBzc2gAAAAAKXAf5DzHSjSMW66Qx0OaRwAAAAA=")
+        .unwrap();
+    assert_eq!(boxes.len(), 1);
+    let pssh = &boxes[0];
+    println!("FairPlay> {pssh:?}");
+    pprint(pssh);
+    assert_eq!(pssh.version, 0);
+    assert_eq!(pssh.system_id, FAIRPLAYNFLX_SYSTEM_ID);
 }
 
 
