@@ -237,9 +237,8 @@ fn test_find_boxes_stream_large() {
         .collect();
     assert!(boxes.len() == 2);
 
-
-    // From https://github.com/chromium/chromium/tree/master/media/test/data
-    let init = reqwest::blocking::get("https://github.com/chromium/chromium/raw/refs/heads/master/media/test/data/bear-1280x720-a_frag-cenc.mp4")
+    // From https://github.com/chromium/chromium/tree/main/media/test/data
+    let init = reqwest::blocking::get("https://github.com/chromium/chromium/raw/refs/heads/main/media/test/data/bear-1280x720-a_frag-cenc.mp4")
         .unwrap()
         .bytes()
         .unwrap();
@@ -249,7 +248,7 @@ fn test_find_boxes_stream_large() {
         .collect();
     assert!(boxes.len() == 3);
 
-    let init = reqwest::blocking::get("https://github.com/chromium/chromium/raw/refs/heads/master/media/test/data/bear-640x360-v_frag-cenc-key_rotation.mp4")
+    let init = reqwest::blocking::get("https://github.com/chromium/chromium/raw/refs/heads/main/media/test/data/bear-640x360-v_frag-cenc-key_rotation.mp4")
         .unwrap()
         .bytes()
         .unwrap();
@@ -258,7 +257,7 @@ fn test_find_boxes_stream_large() {
         .collect();
     assert!(boxes.len() == 18);
 
-    let init = reqwest::blocking::get("https://raw.githubusercontent.com/chromium/chromium/refs/heads/master/media/test/data/bear-640x360-v_frag-cbcs.mp4")
+    let init = reqwest::blocking::get("https://raw.githubusercontent.com/chromium/chromium/refs/heads/main/media/test/data/bear-640x360-v_frag-cbcs.mp4")
         .unwrap()
         .bytes()
         .unwrap();
