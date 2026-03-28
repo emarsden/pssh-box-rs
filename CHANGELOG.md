@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.4] - 2026-03-28
+
+It is now possible to use the fully Rust-based `protox` crate to compile the protobuf interface
+definitions for Widevine PSSH data into Rust structs, instead of requiring the protoc compiler to be
+installed on the build host, or building protoc at compile time on the build host. This build-time
+option can be selected using the new `protox` crate feature.
+
+
 ## [0.2.3] - 2026-02-15
 
 - Updated crate dependencies and tests. No functional changes.
