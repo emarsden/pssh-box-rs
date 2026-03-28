@@ -82,17 +82,22 @@ if let PsshData::Widevine(ref pd) = pssh.pssh_data {
 
 ## Build
 
-The protoc compiler is used during the build process to translate the protobuf interface definition
-for Widevine PSSH data into Rust structs. This happens in the `build.rs` file. The default
-configuration uses a **prebuilt protobuf compiler**, which must be locally installed (from Debian
-package `protobuf-compiler`, for example).
+When building this crate, the protobuf interface definition (`.proto` file) for Widevine PSSH data
+must be converted into Rust structs. This step is specified in the `build.rs` file. There are three
+supported conversion methods, selected using the following crate options:
 
-As an alternative if the `vendored-protoc` feature is enabled, the `protobuf-src` crate is used to
-build a vendored version of the protoc compiler. This requires a working C++ compiler and cmake
-support, and tends to be rather unreliable (in particular, the abseil-cpp component of protobuf
-often causes build failures on any mildly unusual platform). To build on Windows, the simplest
-solution seems to be the UCRT64 environment of [MSYS2](https://www.msys2.org/); see our GitHub
-continuous integration workflow for one recipe that works.
+- `protox`: use the `protox` crate (implemented fully in Rust). This is likely to tbe the most
+  convenient for most users.
+
+- `vendored-protoc`: use the `protobuf-src` crate to build a vendored version of the protoc compiler
+  and use that. This requires a working C++ compiler and cmake support, and tends to be rather
+  unreliable (in particular, the abseil-cpp component of protobuf often causes build failures on any
+  mildly unusual platform). To build on Windows, the simplest solution seems to be the UCRT64
+  environment of [MSYS2](https://www.msys2.org/); see our GitHub continuous integration workflow for
+  one recipe that works.
+
+- no features: use the `protoc` binary installed on the build host
+
 
 
 ## License
