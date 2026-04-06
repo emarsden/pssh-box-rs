@@ -139,6 +139,16 @@ fn test_parsing_widevine_v0() {
                    ProtectionScheme::from_str_name("CBCS").unwrap());
     }
     assert!(boxes.contains(&boxes[0]));
+
+    let boxes = from_base64("AAAAhnBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAAGYSEL+KmJZaPL/F/MIc9h8dwKASEOs0XQbkF14zvdPDmZDPCXgaB0F1ZGlibGUiN2NpZDoNCnY0cVlsbG84djhYOHdoejJIeDNBb0E9PSw2elJkQnVRWFhqTzkwOE9aa004SmVBPT0=")
+        .unwrap();
+    assert_eq!(boxes.len(), 1);
+    let pssh = &boxes[0];
+    assert_eq!(pssh.system_id, WIDEVINE_SYSTEM_ID);
+    assert_eq!(pssh.version, 0);
+    if let PsshData::Widevine(ref pd) = pssh.pssh_data {
+        assert!(pd.provider.clone().is_some_and(|p| p.eq("Audible")));
+    }
 }
 
 
