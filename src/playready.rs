@@ -15,6 +15,7 @@ use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use serde::{Serialize, Deserialize};
 use serde_with::{serde_as, skip_serializing_none};
 use serde_with::base64::Base64;
+use quick_xml::encoding::DecodingReader;
 use num_enum::TryFromPrimitive;
 use tracing::trace;
 use anyhow::{Result, Context, anyhow};
@@ -200,9 +201,9 @@ fn parse_playready_record(rdr: &mut Cursor<&[u8]>) -> Result<PlayReadyRecord> {
         .collect::<Vec<_>>();
     let mut xml = String::from_utf16(&wrmh_u16)
         .context("decoding UTF-16")?;
-    // Extract a possible <CUSTOMATTRIBUTES>...</CUSTOMATTRIBUTES> in the input, because it tends
-    // not to contain valid XML (undeclared namespaces, in particular) and makes the XML parsing
-    // fail. We insert it as a string in the parsed struct.
+    // Extract a possible <CUSTOMATTRIBUTES>...</CUSTOMATTRIBUTES> in the input, because examples in
+    // the wild tend not to contain valid XML (undeclared namespaces, in particular) and make the
+    // XML parsing fail. We insert it as a string in the parsed struct.
     let mut custom_attributes: Option<String> = None;
     if let Some(start) =  xml.find("<CUSTOMATTRIBUTES") {
         if let Some(end) = xml.find("</CUSTOMATTRIBUTES>") {
@@ -221,8 +222,9 @@ fn parse_playready_record(rdr: &mut Cursor<&[u8]>) -> Result<PlayReadyRecord> {
             }
         }
     }
-    let xd = &mut quick_xml::de::Deserializer::from_str(&xml);
-    let mut wrm_header: WRMHeader = serde_path_to_error::deserialize(xd)
+    let decoder = DecodingReader::new(xml.as_ref());
+    let mut xd = quick_xml::de::Deserializer::from_reader(decoder);
+    let mut wrm_header: WRMHeader = serde_path_to_error::deserialize(&mut xd)
         .context("parsing PlayReady XML")?;
     wrm_header.data.custom_attributes = custom_attributes;
     Ok(PlayReadyRecord {
