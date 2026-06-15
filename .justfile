@@ -37,3 +37,13 @@ termux:
 
 clippy:
     cargo clippy -- -Wclippy::unwrap_used -Wclippy::expect_used -Wclippy::indexing_slicing -Wclippy::panic
+
+
+# Requires cargo-audit from https://crates.io/crates/cargo-audit
+audit:
+    cargo audit
+
+# Requires cargo-udeps from https://github.com/est31/cargo-udeps
+udeps:
+    cargo +nightly udeps
+
