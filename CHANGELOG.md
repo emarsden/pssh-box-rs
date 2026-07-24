@@ -1,5 +1,12 @@
 # Changelog
 
+
+## [0.2.5] - 2026-07-24
+
+- Updated crate dependencies. No functional changes. This update resolves two RUSTSEC advisories
+  affecting the quick-xml dependency: RUSTSEC-2026-0194 and RUSTSEC-2026-0195.
+
+
 ## [0.2.4] - 2026-03-28
 
 It is now possible to use the fully Rust-based `protox` crate to compile the protobuf interface
