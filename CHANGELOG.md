@@ -3,8 +3,11 @@
 
 ## [0.2.5] - 2026-07-24
 
-- Updated crate dependencies. No functional changes. This update resolves two RUSTSEC advisories
-  affecting the quick-xml dependency: RUSTSEC-2026-0194 and RUSTSEC-2026-0195.
+- UTF-16 content in a PlayReady PSSH will be auto-detected from the BOM or the XML declaration and
+  decoded to UTF-8, thanks to new support in the quick-xml crate.
+
+- Updated crate dependencies. This update resolves two RUSTSEC advisories affecting the quick-xml
+  dependency: RUSTSEC-2026-0194 and RUSTSEC-2026-0195.
 
 
 ## [0.2.4] - 2026-03-28
